@@ -9,7 +9,6 @@ exports.validateUserSignUp = [
 
 exports.userValidation = (req, res, next) => {
     const result = validationResult(req).array()
-    console.log({result})
     if(!result.length) return next();
     const error = result[0].msg;
    return res.status(400).json({msg: error})

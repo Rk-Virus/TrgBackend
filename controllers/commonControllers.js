@@ -3,10 +3,9 @@ const { sendToken } = require('../utils/tokenUtils')
 // const { successResponse } = require('../utils/response');
 
  const registerUser = async(req, res)=>{
-    console.log("register controller running...")
     // destructuring details from request body
-    const {name, email, phoneNo, password, address } = req.body
-    if(!name || !email || !phoneNo || !password || !address){
+    const {name, email, phoneNo, gender, password } = req.body
+    if(!name || !email || !phoneNo || !password || !gender){
         return res.status(422).json({msg : "one or more field required"})
     }
     try{
@@ -31,18 +30,21 @@ const { sendToken } = require('../utils/tokenUtils')
 
 // ============Login User===============
  const loginUser = async (req, res) =>{
-    const { phoneNo, password } = req.body;
-    if(!phoneNo || !password) return res.status(422).json({msg : "one or more fields required"})
+    const { phoneNoOrEmail, password } = req.body;
+    if(!phoneNoOrEmail || !password) return res.status(422).json({msg : "one or more fields required"})
     try {
-        const foundUser = await User.findOne({ phoneNo });
-        if(!foundUser) return res.status(401).json({msg : "Incorrect phone number or password"})
+        const foundUser = await User.findOne({
+            $or: [{ email: phoneNoOrEmail }, { phoneNo: phoneNoOrEmail }],
+          });
+        if(!foundUser) return res.status(401).json({msg : "Incorrect phone number/email or password"})
+
+        console.log(foundUser)
 
         const isMatching =  await foundUser.comparePassword(password);
         if(!isMatching) return res.status(401).json({msg : "Either phoneNo or password is wrong"})
 
         if(foundUser && isMatching){
             sendToken(foundUser, res)
-            // return res.status(200).json({msg:"Login successful!"})
         }
 
     } catch (err) {
@@ -94,32 +96,13 @@ const fetchUser = async (req, res) =>{
     }
 }
 
-// ============logout User===============
-const logoutUser = async (req, res) =>{
-    try {
-        res.cookie('userInfo', null, {
-            expires : new Date(Date.now()),
-            httpOnly : true
-        })
-        res.cookie('token', null, {
-            expires : new Date(Date.now()),
-            httpOnly : true
-        })
-        res.status(200).json({msg : "success"})
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({msg : "something went wrong", error : err})
-    }
-}
-
+// ====================== update profile =============================
 const updateProfile = async (req, res) => {
     try {
-        const {locationCoords, ...rest} = req.body
         let update = {
-            ...rest,
-            'location.coordinates' : locationCoords
+            ...req.body
         }
-        const updatedProfile = await User.findByIdAndUpdate(req.user._id, update, {new : true})
+        const updatedProfile = await User.findByIdAndUpdate(req.body._id, update, {new : true})
         if(!updatedProfile) return res.status(404).json({msg : 'user not found'})
         res.status(200).json({msg : 'success', response : updatedProfile})
     } catch (err) {
@@ -135,6 +118,5 @@ module.exports = {
       registerUser, loginUser, 
     // checkIfUserExist,
      updatePassword,
-      fetchUser,
-     logoutUser, updateProfile
+      fetchUser, updateProfile
     }

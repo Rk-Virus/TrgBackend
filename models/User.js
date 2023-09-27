@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
         index : true
     },
     phoneNo: {
-        type: Number,
+        type: String,
         required: true,
         length : [10, '10 digit mobile number is required'],
         unique: true,
@@ -25,10 +25,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         enums:["male", "female", "other"]
     },
-    // dob: {
-    //     type: Date,
-    //     required: true
-    // },
+    dob: {
+        type: Date,
+        required: true
+    },
     password: {
         type: String,
         required: true,
@@ -81,7 +81,8 @@ userSchema.methods.comparePassword = async function (password) {
 // --------generatingToken----------------------------
 userSchema.methods.getToken = function () {
     return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
-        expiresIn: Math.floor(Date.now() / 1000) + process.env.COOKIE_EXPIRE * 24 * 60 * 60
+        //jwt expires in JWT_EXPIRE days
+        expiresIn: Math.floor(Date.now() / 1000) + process.env.JWT_EXPIRE * 24 * 60 * 60
     })
 }
 
