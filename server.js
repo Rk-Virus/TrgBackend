@@ -17,7 +17,7 @@ app.use(express.json());
 
 // home route... just to test
 app.get('/', (req, res) => {
-  res.send('Hello from TRG App Backend!')
+  return res.send({msg:"Hello from Trg Backend!"})
 })
 
 // routers

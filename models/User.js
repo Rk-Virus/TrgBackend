@@ -37,6 +37,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "English"
     },
+    verifyCode:{
+        type: Number,
+        default: null,
+        length: [6,"4 digit OTP"]
+    },
     isVarified: {
         type: Boolean,
         default: false
@@ -67,6 +72,13 @@ userSchema.pre('save', async function (next) {
     }
     next();
 })
+
+userSchema.pre('findOneAndUpdate', async function (next) {
+    if (this._update.password) {
+        this._update.password = await bcrypt.hash(this._update.password, 12);
+    }
+    next();
+});
 
 
 // --------Comparing password------------------------
