@@ -40,9 +40,9 @@ const userSchema = new mongoose.Schema({
     verifyCode:{
         type: Number,
         default: null,
-        length: [6,"4 digit OTP"]
+        length: [4,"4 digit OTP"]
     },
-    isVarified: {
+    isVerified: {
         type: Boolean,
         default: false
     },

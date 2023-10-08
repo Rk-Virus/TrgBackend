@@ -6,7 +6,6 @@ const {
     loginUser,
     updateProfile,
     updatePassword,
-    sendMail,
     verifyCode
 } = require("../controllers/commonControllers");
 
@@ -20,7 +19,7 @@ router.post("/login", loginUser)
 router.post("/update-profile", isAuthenticated, updateProfile)
 router.post('/reset-password', updatePassword)
 
-router.post("/verify-email", sendMail)  
+// email verification
 router.post("/verify-code", verifyCode)  
 
 module.exports = router

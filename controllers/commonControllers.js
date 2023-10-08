@@ -14,15 +14,15 @@ const registerUser = async (req, res) => {
         // checking if user exist
         const foundUser = await User.findOne(query)
 
-        if (foundUser && foundUser.isVarified) {
+        if (foundUser && foundUser.isVerified) {
             return res.status(409).json({ msg: "User already exist" })
         } else {
             await User.deleteOne(query)
             console.log("Non verified existing user deleted")
         }
         
-        // generating a 6-digit code
-        const verifyCode = Math.floor(100000 + Math.random() * 900000);
+        // generating a 4-digit code
+        const verifyCode = Math.floor(1000 + Math.random() * 9000);
 
         // sending verification mail
         await sendMail(email, verifyCode)
@@ -52,9 +52,9 @@ const verifyCode = async (req, res) => {
         if (foundUser.verifyCode != verifyCode) return res.status(401).json({msg:"Invalid verification code!"})
 
         //if matched
-        foundUser.isVarified = true;
+        foundUser.isVerified = true;
         await foundUser.save()
-        return res.status(200).json({msg:"Email verified successfully!"})
+        return res.status(200).json({msg:"Email verified successfully!", response:foundUser})
 
     } catch (err) {
         console.log(err)
@@ -72,7 +72,7 @@ const loginUser = async (req, res) => {
             $or: [{ email: phoneNoOrEmail }, { phoneNo: phoneNoOrEmail }],
         });
         if (!foundUser) return res.status(401).json({ msg: "Incorrect phone number/email or password" })
-        if (!foundUser.isVarified) return res.status(401).json({ msg: "Sorry, Email isn't verified yet!" })
+        if (!foundUser.isVerified) return res.status(401).json({ msg: "Sorry, Email isn't verified yet!" })
 
         console.log(foundUser)
 
@@ -147,5 +147,5 @@ const test = () => {
 module.exports = {
     registerUser, loginUser,
     // checkIfUserExist,
-    updatePassword, updateProfile, sendMail, verifyCode
+    updatePassword, updateProfile, verifyCode
 }
