@@ -1,4 +1,5 @@
 const User = require('../models/User')
+const Carousel = require('../models/Carousel')
 const sendMail = require('../utils/mail')
 const { sendToken } = require('../utils/tokenUtils')
 
@@ -20,14 +21,14 @@ const registerUser = async (req, res) => {
             await User.deleteOne(query)
             console.log("Non verified existing user deleted")
         }
-        
+
         // generating a 4-digit code
         const verifyCode = Math.floor(1000 + Math.random() * 9000);
 
         // sending verification mail
         await sendMail(email, verifyCode)
 
-        const user = new User({...req.body, verifyCode})
+        const user = new User({ ...req.body, verifyCode })
         user.save().then(savedUser => {
             if (savedUser) sendToken(savedUser, res)
         }).catch(err => {
@@ -44,17 +45,17 @@ const registerUser = async (req, res) => {
 //=== checking verification code =====
 const verifyCode = async (req, res) => {
     try {
-        const {email, verifyCode} = req.body
+        const { email, verifyCode } = req.body
         // checking if user exist
         const foundUser = await User.findOne({ email })
 
         // matching codes
-        if (foundUser.verifyCode != verifyCode) return res.status(401).json({msg:"Invalid verification code!"})
+        if (foundUser.verifyCode != verifyCode) return res.status(401).json({ msg: "Invalid verification code!" })
 
         //if matched
         foundUser.isVerified = true;
         await foundUser.save()
-        return res.status(200).json({msg:"Email verified successfully!", response:foundUser})
+        return res.status(200).json({ msg: "Email verified successfully!", response: foundUser })
 
     } catch (err) {
         console.log(err)
@@ -71,13 +72,13 @@ const loginUser = async (req, res) => {
         const foundUser = await User.findOne({
             $or: [{ email: phoneNoOrEmail }, { phoneNo: phoneNoOrEmail }],
         });
-        if (!foundUser) return res.status(401).json({ msg: "Incorrect phone number/email or password" })
+        if (!foundUser) return res.status(401).json({ msg: "Incorrect phoneNo/email or password" })
         if (!foundUser.isVerified) return res.status(401).json({ msg: "Sorry, Email isn't verified yet!" })
 
         console.log(foundUser)
 
         const isMatching = await foundUser.comparePassword(password);
-        if (!isMatching) return res.status(401).json({ msg: "Either phoneNo or password is wrong" })
+        if (!isMatching) return res.status(401).json({ msg: "Either phoneNo/password is wrong" })
 
         if (foundUser && isMatching) {
             sendToken(foundUser, res)
@@ -88,19 +89,6 @@ const loginUser = async (req, res) => {
         res.status(500).json({ msg: "something went wrong", error: err })
     }
 }
-
-// const checkIfUserExist = async (req, res) => {
-//     try {
-//         const {phoneNo} = req.body
-//         const foundUser = await User.findOne({phoneNo})
-//         if(!foundUser) return res.status(404).json({msg : "User doesn't exist with provided phone number"})
-//         res.status(200).json({msg : 'success'})
-//     } catch (error) {
-//         console.log(error)
-//         res.status(500).json({msg : "something went wrong", error : error})
-//     }
-// }
-
 
 // ---------------- update Password ------------------------
 const updatePassword = async (req, res) => {
@@ -136,7 +124,28 @@ const updateProfile = async (req, res) => {
     }
 }
 
+//--------------- fetch carousel --------------------------
+const fetchCarousel = async (req, res) => {
+    try {
+        const carouselItems = await Carousel.find();
+        res.status(200).json(carouselItems);
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ msg: "something went wrong", error: err })
+    }
+}
 
+//--------------- upload carousel --------------------------
+const uploadCarousel = async (req, res) => {
+    try {
+        const carouselItem = new Carousel(req.body)
+        await carouselItem.save();
+        res.status(200).json({msg:"Carousel item uploaded!"})
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ msg: "something went wrong", error: err })
+    }
+}
 
 
 // a test function
@@ -146,6 +155,6 @@ const test = () => {
 
 module.exports = {
     registerUser, loginUser,
-    // checkIfUserExist,
+    fetchCarousel, uploadCarousel,
     updatePassword, updateProfile, verifyCode
 }

@@ -51,6 +51,17 @@ const userSchema = new mongoose.Schema({
          type: String,
          default: ""
     },
+    location : {
+        type : {
+            type : String,
+            default : 'Point'
+        },
+        coordinates : {
+            type : [Number],
+            default : [0,0],
+            index : '2dsphere'
+        }
+    },
     ownedMaterials: [{
         material : {
             type : mongoose.Schema.Types.ObjectId,

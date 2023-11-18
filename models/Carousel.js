@@ -17,4 +17,4 @@ const carouselSchema = new mongoose.Schema({
     
 })
 
-module.exports = mongoose.model('User', carouselSchema)
+module.exports = mongoose.model('Carousel', carouselSchema)

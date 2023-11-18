@@ -6,7 +6,9 @@ const {
     loginUser,
     updateProfile,
     updatePassword,
-    verifyCode
+    verifyCode,
+    fetchCarousel,
+    // uploadCarousel
 } = require("../controllers/commonControllers");
 
 const { validateUserSignUp, userValidation } = require('../middlewares/validation/user')
@@ -21,5 +23,9 @@ router.post('/reset-password', updatePassword)
 
 // email verification
 router.post("/verify-code", verifyCode)  
+
+// fetching carousel
+router.get("/fetch-carousel", fetchCarousel)
+// router.post("/upload-carousel", uploadCarousel)
 
 module.exports = router
