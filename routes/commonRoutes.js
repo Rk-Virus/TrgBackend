@@ -8,6 +8,8 @@ const {
     updatePassword,
     verifyCode,
     fetchCarousel,
+    createAnnouncement,
+    fetchAnnouncements,
     // uploadCarousel
 } = require("../controllers/commonControllers");
 
@@ -27,5 +29,9 @@ router.post("/verify-code", verifyCode)
 // fetching carousel
 router.get("/fetch-carousel", fetchCarousel)
 // router.post("/upload-carousel", uploadCarousel)
+
+// announcement apis
+router.post("/create-announcement", createAnnouncement)
+router.get("/fetch-announcements", fetchAnnouncements)
 
 module.exports = router

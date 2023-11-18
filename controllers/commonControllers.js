@@ -2,6 +2,7 @@ const User = require('../models/User')
 const Carousel = require('../models/Carousel')
 const sendMail = require('../utils/mail')
 const { sendToken } = require('../utils/tokenUtils')
+const Announcement = require('../models/Announcement')
 
 // ======= registering user ============
 const registerUser = async (req, res) => {
@@ -124,17 +125,6 @@ const updateProfile = async (req, res) => {
     }
 }
 
-//--------------- fetch carousel --------------------------
-const fetchCarousel = async (req, res) => {
-    try {
-        const carouselItems = await Carousel.find();
-        res.status(200).json(carouselItems);
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({ msg: "something went wrong", error: err })
-    }
-}
-
 //--------------- upload carousel --------------------------
 const uploadCarousel = async (req, res) => {
     try {
@@ -147,14 +137,43 @@ const uploadCarousel = async (req, res) => {
     }
 }
 
+//--------------- fetch carousel --------------------------
+const fetchCarousel = async (req, res) => {
+    try {
+        const carouselItems = await Carousel.find();
+        res.status(200).json(carouselItems);
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ msg: "something went wrong", error: err })
+    }
+}
 
-// a test function
-const test = () => {
-    console.log("it's working")
+//---------- create announcement ----------
+const createAnnouncement = async (req, res) =>{
+    try {
+        const announcement = new Announcement(req.body);
+        await announcement.save();
+        res.status(200).json({msg:"Announcement created!"})
+    } catch (error) {
+        console.log(err)
+        res.status(500).json({ msg: "something went wrong", error: err })
+    }
+}
+
+//--------------- fetch announcements --------------------------
+const fetchAnnouncements = async (req, res) => {
+    try {
+        const announcements = await Announcement.find();
+        res.status(200).json(announcements);
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ msg: "something went wrong", error: err })
+    }
 }
 
 module.exports = {
     registerUser, loginUser,
     fetchCarousel, uploadCarousel,
-    updatePassword, updateProfile, verifyCode
+    updatePassword, updateProfile, verifyCode,
+    createAnnouncement, fetchAnnouncements
 }
