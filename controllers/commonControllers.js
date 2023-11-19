@@ -3,6 +3,8 @@ const Carousel = require('../models/Carousel')
 const sendMail = require('../utils/mail')
 const { sendToken } = require('../utils/tokenUtils')
 const Announcement = require('../models/Announcement')
+const StudyMaterial = require('../models/StudyMaterial')
+const Bookmark = require('../models/Bookmark')
 
 // ======= registering user ============
 const registerUser = async (req, res) => {
@@ -130,7 +132,7 @@ const uploadCarousel = async (req, res) => {
     try {
         const carouselItem = new Carousel(req.body)
         await carouselItem.save();
-        res.status(200).json({msg:"Carousel item uploaded!"})
+        res.status(200).json({ msg: "Carousel item uploaded!" })
     } catch (err) {
         console.log(err)
         res.status(500).json({ msg: "something went wrong", error: err })
@@ -149,11 +151,11 @@ const fetchCarousel = async (req, res) => {
 }
 
 //---------- create announcement ----------
-const createAnnouncement = async (req, res) =>{
+const createAnnouncement = async (req, res) => {
     try {
         const announcement = new Announcement(req.body);
         await announcement.save();
-        res.status(200).json({msg:"Announcement created!"})
+        res.status(200).json({ msg: "Announcement created!" })
     } catch (error) {
         console.log(err)
         res.status(500).json({ msg: "something went wrong", error: err })
@@ -171,9 +173,89 @@ const fetchAnnouncements = async (req, res) => {
     }
 }
 
+
+//---------------- create material ------------------------
+const createMaterial = async (req, res) => {
+    try {
+        const material = new StudyMaterial(req.body);
+        await material.save();
+        res.status(200).json({ msg: "Study Material added!" })
+    } catch (error) {
+        console.log(err)
+        res.status(500).json({ msg: "something went wrong", error: err })
+    }
+}
+
+//--------------- fetch materials --------------------------
+const fetchMaterials = async (req, res) => {
+    try {
+        const materials = await StudyMaterial.find();
+        res.status(200).json(materials);
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ msg: "something went wrong", error: err })
+    }
+}
+
+
+//--------------- add bookmark ------------------------
+const addBookmark = async (req, res) => {
+    const { userId, materialId } = req.body;
+    try {
+        // Check if the user and material exist before creating a bookmark
+        const userExists = await User.exists({ _id: userId });
+        const materialExists = await StudyMaterial.exists({ _id: materialId });
+
+        if (!userExists || !materialExists) {
+            return res.status(404).json({ error: 'User or material not found.' });
+        }
+
+        const bookmarkObj = {
+            user: userId,
+            material: materialId,
+        }
+
+        const bookmarkId = await Bookmark.exists(bookmarkObj)
+        // delete if bookmark exists
+        if (bookmarkId){
+            await Bookmark.findByIdAndRemove(bookmarkId);
+            return res.status(200).json({ message: 'Bookmark removed successfully.' });
+        }
+
+        // Create a new bookmark instance
+        const newBookmark = new Bookmark(bookmarkObj);
+
+        // Save the bookmark to the database
+        const savedBookmark = await newBookmark.save();
+
+        res.status(201).json(savedBookmark);
+    } catch (error) {
+        console.error('Error saving bookmark:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+//-------------- fetch bookmarks for a user -------------
+// app.get('/get-bookmarks/:userId',
+const fetchBookmarks = async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        // Find bookmarks for the given userId and populate the 'material' field
+        const bookmarks = await Bookmark.find({ user: userId }).populate('material');
+
+        res.status(200).json(bookmarks);
+    } catch (error) {
+        console.error('Error fetching bookmarks:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     registerUser, loginUser,
     fetchCarousel, uploadCarousel,
     updatePassword, updateProfile, verifyCode,
-    createAnnouncement, fetchAnnouncements
+    createAnnouncement, fetchAnnouncements,
+    createMaterial, fetchMaterials,
+    addBookmark, fetchBookmarks
 }

@@ -10,6 +10,10 @@ const {
     fetchCarousel,
     createAnnouncement,
     fetchAnnouncements,
+    createMaterial,
+    fetchMaterials,
+    addBookmark,
+    fetchBookmarks,
     // uploadCarousel
 } = require("../controllers/commonControllers");
 
@@ -26,12 +30,20 @@ router.post('/reset-password', updatePassword)
 // email verification
 router.post("/verify-code", verifyCode)  
 
-// fetching carousel
+// carousel apis
 router.get("/fetch-carousel", fetchCarousel)
 // router.post("/upload-carousel", uploadCarousel)
 
 // announcement apis
 router.post("/create-announcement", createAnnouncement)
 router.get("/fetch-announcements", fetchAnnouncements)
+
+// study material apis
+router.post("/create-material", createMaterial)
+router.get("/fetch-materials", fetchMaterials)
+
+// bookmark apis
+router.post("/add-bookmark", addBookmark)
+router.get("/fetch-bookmarks/:userId", fetchBookmarks)
 
 module.exports = router
