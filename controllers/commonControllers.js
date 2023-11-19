@@ -5,6 +5,7 @@ const { sendToken } = require('../utils/tokenUtils')
 const Announcement = require('../models/Announcement')
 const StudyMaterial = require('../models/StudyMaterial')
 const Bookmark = require('../models/Bookmark')
+const StudentDoubt = require('../models/StudentDoubt')
 
 // ======= registering user ============
 const registerUser = async (req, res) => {
@@ -217,7 +218,7 @@ const addBookmark = async (req, res) => {
 
         const bookmarkId = await Bookmark.exists(bookmarkObj)
         // delete if bookmark exists
-        if (bookmarkId){
+        if (bookmarkId) {
             await Bookmark.findByIdAndRemove(bookmarkId);
             return res.status(200).json({ message: 'Bookmark removed successfully.' });
         }
@@ -236,7 +237,6 @@ const addBookmark = async (req, res) => {
 };
 
 //-------------- fetch bookmarks for a user -------------
-// app.get('/get-bookmarks/:userId',
 const fetchBookmarks = async (req, res) => {
     const userId = req.params.userId;
 
@@ -251,11 +251,69 @@ const fetchBookmarks = async (req, res) => {
     }
 };
 
+//------------------check if bookmarked ------------------------------
+const checkIfBookmarked = async (req, res) => {
+    const { userId, materialId } = req.body;
+    try {
+        // Check if the user and material exist before creating a bookmark
+        const userExists = await User.exists({ _id: userId });
+        const materialExists = await StudyMaterial.exists({ _id: materialId });
+
+        if (!userExists || !materialExists) {
+            return res.status(404).json({ error: 'User or material not found.' });
+        }
+
+        const bookmarkObj = {
+            user: userId,
+            material: materialId,
+        }
+
+        const bookmarkId = await Bookmark.exists(bookmarkObj)
+        // delete if bookmark exists
+        if (bookmarkId) {
+            return res.status(200).json(true);
+        }
+        res.status(201).json(false);
+    } catch (error) {
+        console.error('Error checking if bookmarked:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+//-------------- submit doubt --------------------------
+const submitDoubt = async (req, res) => {
+    try {
+        // Extract relevant data from the request body
+        const { topic, question, userId } = req.body;
+
+        // Check if the user already exists 
+        let user = await User.findOne({ _id: userId });
+        if (!user) {
+            return res.status(200).json({ err: "User doesn't exist!" })
+        }
+
+        // Create a new student doubt using the StudentDoubt model
+        const newDoubt = await StudentDoubt.create({
+            topic,
+            question,
+            student:{name: user.name,
+            email: user.email,}
+        });
+
+        res.status(201).json(newDoubt);
+    } catch (error) {
+        console.error('Error submitting student doubt:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
 module.exports = {
     registerUser, loginUser,
     fetchCarousel, uploadCarousel,
     updatePassword, updateProfile, verifyCode,
     createAnnouncement, fetchAnnouncements,
     createMaterial, fetchMaterials,
-    addBookmark, fetchBookmarks
+    addBookmark, fetchBookmarks, checkIfBookmarked,
+    submitDoubt
 }

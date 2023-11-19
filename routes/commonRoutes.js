@@ -14,6 +14,8 @@ const {
     fetchMaterials,
     addBookmark,
     fetchBookmarks,
+    checkIfBookmarked,
+    submitDoubt,
     // uploadCarousel
 } = require("../controllers/commonControllers");
 
@@ -45,5 +47,9 @@ router.get("/fetch-materials", fetchMaterials)
 // bookmark apis
 router.post("/add-bookmark", addBookmark)
 router.get("/fetch-bookmarks/:userId", fetchBookmarks)
+router.get("/check-if-bookmarked", checkIfBookmarked)
+
+// doubt submit api
+router.post("/submit-doubt", submitDoubt)
 
 module.exports = router
