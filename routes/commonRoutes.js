@@ -16,6 +16,8 @@ const {
     fetchBookmarks,
     checkIfBookmarked,
     submitDoubt,
+    createQod,
+    fetchQod,
     // uploadCarousel
 } = require("../controllers/commonControllers");
 
@@ -51,5 +53,9 @@ router.get("/check-if-bookmarked", checkIfBookmarked)
 
 // doubt submit api
 router.post("/submit-doubt", submitDoubt)
+
+// qod apis
+router.post("/create-qod", createQod)
+router.get("/fetch-qod", fetchQod)
 
 module.exports = router
