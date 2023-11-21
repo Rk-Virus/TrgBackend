@@ -18,6 +18,9 @@ const {
     submitDoubt,
     createQod,
     fetchQod,
+    createQuiz,
+    fetchQuizes,
+    fetchQuiz,
     // uploadCarousel
 } = require("../controllers/commonControllers");
 
@@ -57,5 +60,10 @@ router.post("/submit-doubt", submitDoubt)
 // qod apis
 router.post("/create-qod", createQod)
 router.get("/fetch-qod", fetchQod)
+
+// quiz apis
+router.post("/create-quiz", createQuiz)
+router.post("/fetch-quizes", fetchQuizes)
+router.get("/fetch-quiz/:id", fetchQuiz)
 
 module.exports = router

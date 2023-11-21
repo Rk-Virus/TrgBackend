@@ -7,6 +7,9 @@ const StudyMaterial = require('../models/StudyMaterial')
 const Bookmark = require('../models/Bookmark')
 const StudentDoubt = require('../models/StudentDoubt')
 const QuestionOfTheDay = require('../models/QuestionOfTheDay')
+const Quiz = require('../models/Quiz')
+const Question = require('../models/Question')
+const formatDate = require('../utils/formatDate')
 
 // ======= registering user ============
 const registerUser = async (req, res) => {
@@ -354,13 +357,100 @@ const fetchQod = async (req, res) => {
     }
 }
 
-// Helper function to format date to dd/mm/yyyy
-const formatDate = (date) => {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
-    const year = date.getFullYear();
-    return `${year}-${month}-${day}`;
+
+
+//----------------- create quiz -------------------------
+const createQuiz = async (req, res) => {
+    try {
+        // Extract quiz data and questions data from the request body
+        const { quizData, questionsData } = req.body;
+
+        // Create a blank quiz
+        const blankQuiz = await Quiz.create(quizData[0]); // ...[0] to take quize data
+
+        // Map questions data to include the quizId
+        const questionsToCreate = questionsData.map(questionData => ({
+            ...questionData,
+            // converting option string into array
+            options: questionData.options.split(',').map(option => option.trim()),
+            quizId: blankQuiz._id,
+        }));
+
+        // Create and save all questions
+        const createdQuestions = await Question.insertMany(questionsToCreate);
+
+        // Extract the IDs of the created questions
+        const createdQuestionIds = createdQuestions.map(question => question._id);
+
+        // Update the blank quiz with the IDs of the created questions
+        await Quiz.findByIdAndUpdate(
+            blankQuiz._id,
+            { $set: { questions: createdQuestionIds } },
+            { new: true }
+        );
+
+        res.status(201).json({ message: 'Quiz and questions created successfully' });
+    } catch (error) {
+        console.error('Error creating quiz and questions:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 };
+
+//-------------- fetch quizes based on course, class and subject ---------------
+const fetchQuizes = async (req, res) => {
+    try {
+
+        // Fetch quizzes based on the query
+        const quizzes = await Quiz.find(req.body);
+
+        res.status(200).json(quizzes);
+    } catch (error) {
+        console.error('Error fetching quizzes:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+//-------------- fetch a specific quiz as per id ----------------
+const fetchQuiz = async (req, res) => {
+    try {
+        const quizId = req.params.id;
+
+        // Validate if quizId is a valid MongoDB ObjectId
+        if (!isValidObjectId(quizId)) {
+            return res.status(400).json({ error: 'Invalid quiz ID' });
+        }
+
+        // Fetch quiz by ID to get the question IDs
+    const quiz = await Quiz.findById(quizId);
+
+    // Check if the quiz with the given ID exists
+    if (!quiz) {
+      return res.status(404).json({ error: 'Quiz not found' });
+    }
+
+    // Populate the 'questions' array with the actual question documents
+    const populatedQuestions = await Question.find({ _id: { $in: quiz.questions } });
+
+    // Update the quiz object with the populated 'questions' array
+    const quizWithPopulatedQuestions = {
+      ...quiz.toObject(),
+      questions: populatedQuestions,
+    };
+
+    res.status(200).json(quizWithPopulatedQuestions);
+    } catch (error) {
+        console.error('Error fetching quiz:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+// Helper function to check if a string is a valid MongoDB ObjectId
+function isValidObjectId(id) {
+    const mongoose = require('mongoose');
+    return mongoose.Types.ObjectId.isValid(id);
+}
+
 
 module.exports = {
     registerUser, loginUser,
@@ -370,5 +460,6 @@ module.exports = {
     createMaterial, fetchMaterials,
     addBookmark, fetchBookmarks, checkIfBookmarked,
     submitDoubt,
-    createQod, fetchQod
+    createQod, fetchQod,
+    createQuiz, fetchQuizes, fetchQuiz
 }
