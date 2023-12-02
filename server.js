@@ -22,6 +22,7 @@ app.get('/', (req, res) => {
 
 // routers
 app.use("/api", require("./routes/commonRoutes"))
+app.use("/payment", require("./routes/paymentRoutes"))
 
 //serving static files
 app.use('/static', express.static(path.join(__dirname, 'static')))
