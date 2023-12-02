@@ -6,10 +6,10 @@ const Announcement = require('../models/Announcement')
 const StudyMaterial = require('../models/StudyMaterial')
 const Bookmark = require('../models/Bookmark')
 const StudentDoubt = require('../models/StudentDoubt')
-const QuestionOfTheDay = require('../models/QuestionOfTheDay')
+const QOD = require('../models/QOD')
 const Quiz = require('../models/Quiz')
 const Question = require('../models/Question')
-const { formatDate, convertToLowerCase } = require('../utils/formateString')
+const { formatDate, convertToLowerCase, removeEmptyKeys } = require('../utils/formateString')
 
 // ======= registering user ============
 const registerUser = async (req, res) => {
@@ -182,10 +182,10 @@ const fetchAnnouncements = async (req, res) => {
 //---------------- create material ------------------------
 const createMaterial = async (req, res) => {
     try {
-        const material = new StudyMaterial(req.body);
+        const material = new StudyMaterial(convertToLowerCase(req.body));
         await material.save();
         res.status(200).json({ msg: "Study Material added!" })
-    } catch (error) {
+    } catch (err) {
         console.log(err)
         res.status(500).json({ msg: "something went wrong", error: err })
     }
@@ -194,7 +194,8 @@ const createMaterial = async (req, res) => {
 //--------------- fetch materials --------------------------
 const fetchMaterials = async (req, res) => {
     try {
-        const materials = await StudyMaterial.find();
+        req.body = removeEmptyKeys(req.body)
+        const materials = await StudyMaterial.find(convertToLowerCase(req.body));
         res.status(200).json(materials);
     } catch (err) {
         console.log(err)
@@ -320,8 +321,8 @@ const createQod = async (req, res) => {
         // Extract relevant data from the request body
         const { question, answer, options, category, date } = req.body;
 
-        // Create a new Question of the Day using the QuestionOfTheDay model
-        const newQOD = await QuestionOfTheDay.create({
+        // Create a new Question of the Day using the QOD model
+        const newQOD = await QOD.create({
             question,
             answer,
             options,
@@ -343,7 +344,7 @@ const fetchQod = async (req, res) => {
         const today = new Date();
         const formattedToday = formatDate(today);
         // Fetch the Question of the Day for today's date from the database
-        const qodForToday = await QuestionOfTheDay.findOne({ date: formattedToday });
+        const qodForToday = await QOD.findOne({ date: formattedToday });
 
         if (!qodForToday) {
             return res.status(404).json({ message: 'Question of the Day not found for today\'s date' });
@@ -399,14 +400,8 @@ const createQuiz = async (req, res) => {
 //-------------- fetch quizes based on course, class and subject ---------------
 const fetchQuizes = async (req, res) => {
     try {
-        // removing keys with empty string
-        let newObj = {}
-        for (const key in req.body) {
-            if (req.body.hasOwnProperty(key) && req.body[key] !== '') {
-              newObj[key] = req.body[key];
-            }
-          }
-        req.body = newObj;
+
+        req.body = removeEmptyKeys(req.body);
 
         // Fetch quizzes based on the query
         const quizzes = await Quiz.find(convertToLowerCase(req.body));

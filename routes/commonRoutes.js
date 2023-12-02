@@ -47,7 +47,7 @@ router.get("/fetch-announcements", fetchAnnouncements)
 
 // study material apis
 router.post("/create-material", createMaterial)
-router.get("/fetch-materials", fetchMaterials)
+router.post("/fetch-materials", fetchMaterials)
 
 // bookmark apis
 router.post("/add-bookmark", addBookmark)

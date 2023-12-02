@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const questionOfTheDaySchema = new mongoose.Schema({
+const QODSchema = new mongoose.Schema({
   question: {
     type: String,
     required: true,
@@ -30,6 +30,6 @@ const questionOfTheDaySchema = new mongoose.Schema({
   timestamps: true, // Adds createdAt and updatedAt timestamps
 });
 
-const QuestionOfTheDay = mongoose.model('QuestionOfTheDay', questionOfTheDaySchema);
+const QOD = mongoose.model('QOD', QODSchema);
 
-module.exports = QuestionOfTheDay;
+module.exports = QOD;

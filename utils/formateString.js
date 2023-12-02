@@ -20,4 +20,15 @@ const convertToLowerCase = (obj) => {
     return convertedObject;
   };
 
-module.exports = {formatDate, convertToLowerCase};
+const removeEmptyKeys = (obj) =>{
+  // removing keys with empty strings
+  let newObj = {}
+  for (const key in obj) {
+      if (obj.hasOwnProperty(key) && obj[key] !== '') {
+        newObj[key] = obj[key];
+      }
+    }
+  return newObj;
+}
+
+module.exports = {formatDate, convertToLowerCase, removeEmptyKeys};
