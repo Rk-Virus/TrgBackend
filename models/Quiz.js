@@ -13,11 +13,11 @@ const quizSchema = new mongoose.Schema({
   },
   class: {
     type: Number,
-    enum: [6,7,8,9,10,11,12]
+    enum: [1,2,3,4,5,6,7,8,9,10,11,12]
   },
   subject: {
     type: String,
-    enum: ["English", "Mathematics", "Sst", "Hindi", "Sanskrit", "Science"]
+    enum: ["english", "mathmatics", "sst", "hindi", "sanskrit", "science"]
   },
   questions:{
     type: [String],

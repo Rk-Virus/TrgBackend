@@ -9,7 +9,7 @@ const StudentDoubt = require('../models/StudentDoubt')
 const QuestionOfTheDay = require('../models/QuestionOfTheDay')
 const Quiz = require('../models/Quiz')
 const Question = require('../models/Question')
-const formatDate = require('../utils/formatDate')
+const {formatDate, convertToLowerCase} = require('../utils/formateString')
 
 // ======= registering user ============
 const registerUser = async (req, res) => {
@@ -401,7 +401,7 @@ const fetchQuizes = async (req, res) => {
     try {
 
         // Fetch quizzes based on the query
-        const quizzes = await Quiz.find(req.body);
+        const quizzes = await Quiz.find(convertToLowerCase(req.body));
 
         res.status(200).json(quizzes);
     } catch (error) {
