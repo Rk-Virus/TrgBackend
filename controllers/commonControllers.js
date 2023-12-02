@@ -9,7 +9,7 @@ const StudentDoubt = require('../models/StudentDoubt')
 const QuestionOfTheDay = require('../models/QuestionOfTheDay')
 const Quiz = require('../models/Quiz')
 const Question = require('../models/Question')
-const {formatDate, convertToLowerCase} = require('../utils/formateString')
+const { formatDate, convertToLowerCase } = require('../utils/formateString')
 
 // ======= registering user ============
 const registerUser = async (req, res) => {
@@ -400,6 +400,13 @@ const createQuiz = async (req, res) => {
 const fetchQuizes = async (req, res) => {
     try {
 
+        // replacing empty string with null
+        for (const key in req.body) {
+            if (req.body.hasOwnProperty(key)) {
+                req.body[key] = req.body[key] === '' ? null : req.body[key];
+            }
+        }
+
         // Fetch quizzes based on the query
         const quizzes = await Quiz.find(convertToLowerCase(req.body));
 
@@ -421,23 +428,23 @@ const fetchQuiz = async (req, res) => {
         }
 
         // Fetch quiz by ID to get the question IDs
-    const quiz = await Quiz.findById(quizId);
+        const quiz = await Quiz.findById(quizId);
 
-    // Check if the quiz with the given ID exists
-    if (!quiz) {
-      return res.status(404).json({ error: 'Quiz not found' });
-    }
+        // Check if the quiz with the given ID exists
+        if (!quiz) {
+            return res.status(404).json({ error: 'Quiz not found' });
+        }
 
-    // Populate the 'questions' array with the actual question documents
-    const populatedQuestions = await Question.find({ _id: { $in: quiz.questions } });
+        // Populate the 'questions' array with the actual question documents
+        const populatedQuestions = await Question.find({ _id: { $in: quiz.questions } });
 
-    // Update the quiz object with the populated 'questions' array
-    const quizWithPopulatedQuestions = {
-      ...quiz.toObject(),
-      questions: populatedQuestions,
-    };
+        // Update the quiz object with the populated 'questions' array
+        const quizWithPopulatedQuestions = {
+            ...quiz.toObject(),
+            questions: populatedQuestions,
+        };
 
-    res.status(200).json(quizWithPopulatedQuestions);
+        res.status(200).json(quizWithPopulatedQuestions);
     } catch (error) {
         console.error('Error fetching quiz:', error);
         res.status(500).json({ error: 'Internal Server Error' });

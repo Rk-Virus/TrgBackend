@@ -10,9 +10,7 @@ const convertToLowerCase = (obj) => {
     if (typeof obj !== 'object' || obj === null) {
       throw new Error('Input must be a non-null object');
     }
-  
     const convertedObject = {};
-  
     Object.keys(obj).forEach(key => {
       const value = obj[key];
       convertedObject[key] = typeof value === 'string' ? value.toLowerCase() : value;
