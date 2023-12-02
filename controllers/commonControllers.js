@@ -399,13 +399,14 @@ const createQuiz = async (req, res) => {
 //-------------- fetch quizes based on course, class and subject ---------------
 const fetchQuizes = async (req, res) => {
     try {
-
-        // replacing empty string with null
+        // removing keys with empty string
+        let newObj = {}
         for (const key in req.body) {
-            if (req.body.hasOwnProperty(key)) {
-                req.body[key] = req.body[key] === '' ? null : req.body[key];
+            if (req.body.hasOwnProperty(key) && req.body[key] !== '') {
+              newObj[key] = req.body[key];
             }
-        }
+          }
+        req.body = newObj;
 
         // Fetch quizzes based on the query
         const quizzes = await Quiz.find(convertToLowerCase(req.body));

@@ -7,8 +7,9 @@ const formatDate = (date) => {
 };
 
 const convertToLowerCase = (obj) => {
-    if (typeof obj !== 'object' || obj === null) {
+    if (typeof obj !== 'object' || obj === null ) {
       throw new Error('Input must be a non-null object');
+      
     }
     const convertedObject = {};
     Object.keys(obj).forEach(key => {
