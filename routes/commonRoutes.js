@@ -52,7 +52,7 @@ router.post("/fetch-materials", fetchMaterials)
 // bookmark apis
 router.post("/add-bookmark", addBookmark)
 router.get("/fetch-bookmarks/:userId", fetchBookmarks)
-router.get("/check-if-bookmarked", checkIfBookmarked)
+router.post("/check-if-bookmarked", checkIfBookmarked)
 
 // doubt submit api
 router.post("/submit-doubt", submitDoubt)
