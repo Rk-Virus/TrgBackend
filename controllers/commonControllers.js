@@ -4,12 +4,13 @@ const sendMail = require('../utils/mail')
 const { sendToken } = require('../utils/tokenUtils')
 const Announcement = require('../models/Announcement')
 const StudyMaterial = require('../models/StudyMaterial')
-const Bookmark = require('../models/Bookmark')
 const StudentDoubt = require('../models/StudentDoubt')
 const QOD = require('../models/QOD')
 const Quiz = require('../models/Quiz')
 const Question = require('../models/Question')
 const { formatDate, convertToLowerCase, removeEmptyKeys } = require('../utils/formateString')
+const MaterialBookmark = require('../models/MaterialBookmark')
+const QuizBookmark = require('../models/QuizBookmark')
 
 // ======= registering user ============
 const registerUser = async (req, res) => {
@@ -211,25 +212,41 @@ const addBookmark = async (req, res) => {
         // Check if the user and material exist before creating a bookmark
         const userExists = await User.exists({ _id: userId });
         const materialExists = await StudyMaterial.exists({ _id: materialId });
+        const quizExists = await Quiz.exists({ _id: materialId });
 
-        if (!userExists || !materialExists) {
+        if (!userExists || !(quizExists || materialExists)) {
             return res.status(404).json({ error: 'User or material not found.' });
         }
 
-        const bookmarkObj = {
-            user: userId,
-            material: materialId,
+        
+        if (materialExists) {
+            const bookmarkObj = {
+                user: userId,
+                material: materialId,
+            }
+            const materialBookmarkId = await MaterialBookmark.exists(bookmarkObj)
+            // delete if bookmark exists
+            if (materialBookmarkId) {
+                await MaterialBookmark.findByIdAndRemove(materialBookmarkId);
+                return res.status(200).json({ message: 'Bookmark removed successfully.' });
+            }
+            // Create a new bookmark instance
+            newBookmark = new MaterialBookmark(bookmarkObj);
         }
-
-        const bookmarkId = await Bookmark.exists(bookmarkObj)
-        // delete if bookmark exists
-        if (bookmarkId) {
-            await Bookmark.findByIdAndRemove(bookmarkId);
-            return res.status(200).json({ message: 'Bookmark removed successfully.' });
+        if (quizExists) {
+            const bookmarkObj = {
+                user: userId,
+                quiz: materialId,
+            }
+            const quizBookmarkId = await QuizBookmark.exists(bookmarkObj)
+            // delete if bookmark exists
+            if (quizBookmarkId) {
+                await QuizBookmark.findByIdAndRemove(quizBookmarkId);
+                return res.status(200).json({ message: 'Bookmark removed successfully.' });
+            }
+            // Create a new bookmark instance
+            newBookmark = new QuizBookmark(bookmarkObj);
         }
-
-        // Create a new bookmark instance
-        const newBookmark = new Bookmark(bookmarkObj);
 
         // Save the bookmark to the database
         const savedBookmark = await newBookmark.save();
@@ -247,9 +264,10 @@ const fetchBookmarks = async (req, res) => {
 
     try {
         // Find bookmarks for the given userId and populate the 'material' field
-        const bookmarks = await Bookmark.find({ user: userId }).populate('material');
+        const materialBookmarks = await MaterialBookmark.find({ user: userId }).populate('material');
+        const quizBookmarks = await QuizBookmark.find({ user: userId }).populate('quiz');
 
-        res.status(200).json(bookmarks);
+        res.status(200).json({materialBookmarks, quizBookmarks});
     } catch (error) {
         console.error('Error fetching bookmarks:', error);
         res.status(500).json({ error: 'Internal Server Error' });

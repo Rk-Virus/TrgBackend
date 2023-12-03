@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const bookmarkSchema = new mongoose.Schema({
+const materialBookmarkSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -19,6 +19,6 @@ const bookmarkSchema = new mongoose.Schema({
   // For example: notes, tags, etc.
 });
 
-const Bookmark = mongoose.model('Bookmark', bookmarkSchema);
+const MaterialBookmark = mongoose.model('MaterialBookmark', materialBookmarkSchema);
 
-module.exports = Bookmark;
+module.exports = MaterialBookmark;
