@@ -218,7 +218,7 @@ const addBookmark = async (req, res) => {
             return res.status(404).json({ error: 'User or material not found.' });
         }
 
-        
+
         if (materialExists) {
             const bookmarkObj = {
                 user: userId,
@@ -267,7 +267,7 @@ const fetchBookmarks = async (req, res) => {
         const materialBookmarks = await MaterialBookmark.find({ user: userId }).populate('material');
         const quizBookmarks = await QuizBookmark.find({ user: userId }).populate('quiz');
 
-        res.status(200).json({materialBookmarks, quizBookmarks});
+        res.status(200).json({ materialBookmarks, quizBookmarks });
     } catch (error) {
         console.error('Error fetching bookmarks:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -281,17 +281,28 @@ const checkIfBookmarked = async (req, res) => {
         // Check if the user and material exist before creating a bookmark
         const userExists = await User.exists({ _id: userId });
         const materialExists = await StudyMaterial.exists({ _id: materialId });
+        const quizExists = await Quiz.exists({ _id: materialId });
 
-        if (!userExists || !materialExists) {
+        if (!userExists || !(quizExists || materialExists)) {
             return res.status(404).json({ error: 'User or material not found.' });
         }
 
-        const bookmarkObj = {
-            user: userId,
-            material: materialId,
+        if (materialExists) {
+            const bookmarkObj = {
+                user: userId,
+                material: materialId,
+            }
+            bookmarkId = await MaterialBookmark.exists(bookmarkObj)
         }
 
-        const bookmarkId = await Bookmark.exists(bookmarkObj)
+        if (quizExists) {
+            const bookmarkObj = {
+                user: userId,
+                quiz: materialId,
+            }
+            bookmarkId = await QuizBookmark.exists(bookmarkObj)
+        }
+
         // delete if bookmark exists
         if (bookmarkId) {
             return res.status(200).json(true);
