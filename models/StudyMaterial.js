@@ -31,6 +31,15 @@ const studyMaterialSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  isPaid:{
+    type:Boolean,
+    default:false,
+  },
+  price:{
+    type:Number,
+    required:false,
+    default:0,
+  }
 });
 
 const StudyMaterial = mongoose.model('StudyMaterial', studyMaterialSchema);
