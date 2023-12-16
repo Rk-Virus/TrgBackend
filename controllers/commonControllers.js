@@ -493,5 +493,5 @@ module.exports = {
     addBookmark, fetchBookmarks, checkIfBookmarked,
     submitDoubt,
     createQod, fetchQod,
-    createQuiz, fetchQuizes, fetchQuiz
+    createQuiz, fetchQuizes, fetchQuiz,
 }

@@ -1,5 +1,10 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 // This example sets up an endpoint using the Express framework.
+const PaidMaterial = require('../models/PaidMaterial')
+const PaidQuiz = require('../models/PaidQuiz');
+const Quiz = require('../models/Quiz');
+const StudyMaterial = require('../models/StudyMaterial');
+const User = require('../models/User');
 
 const handleIntent = async (req, res) => {
     try {
@@ -34,4 +39,59 @@ const handleIntent = async (req, res) => {
     }
 };
 
-module.exports = { handleIntent }
+
+//--------------- add paidMaterial ------------------------
+const addPaidMaterial = async (req, res) => {
+  const { userId, materialId } = req.body;
+  try {
+      // Check if the user and material exist 
+      const userExists = await User.exists({ _id: userId });
+      const materialExists = await StudyMaterial.exists({ _id: materialId });
+      const quizExists = await Quiz.exists({ _id: materialId });
+
+      if (!userExists || !(quizExists || materialExists)) {
+          return res.status(404).json({ error: 'User or material not found.' });
+      }
+
+      let newPaidMaterial;
+      if (materialExists) {
+          const paidMaterialObj = {
+              user: userId,
+              material: materialId,
+          }
+          const materialBookmarkId = await PaidMaterial.exists(paidMaterialObj)
+          // delete if bookmark exists
+          if (materialBookmarkId) {
+              // await MaterialBookmark.findByIdAndRemove(materialBookmarkId);
+              return res.status(200).json({ message: 'You have already purchased this study material!' });
+          }
+          // Create a new bookmark instance
+          newPaidMaterial = new PaidMaterial(paidMaterialObj);
+      }
+      if (quizExists) {
+          const paidMaterialObj = {
+              user: userId,
+              quiz: materialId,
+          }
+          const quizBookmarkId = await PaidQuiz.exists(paidMaterialObj)
+          // delete if bookmark exists
+          if (quizBookmarkId) {
+              // await QuizBookmark.findByIdAndRemove(quizBookmarkId);
+              return res.status(200).json({ message: 'You have already purchased this test series!' });
+          }
+          // Create a new bookmark instance
+          newPaidMaterial = new PaidQuiz(paidMaterialObj);
+      }
+
+      // Save the bookmark to the database
+      const savedPaidMaterial = await newPaidMaterial.save();
+
+      res.status(201).json(savedPaidMaterial);
+  } catch (error) {
+      console.error('Error buying material:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+module.exports = { handleIntent, addPaidMaterial }
