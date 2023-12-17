@@ -50,7 +50,7 @@ const addPaidMaterial = async (req, res) => {
     console.log("api running...")
     // Authentication
     // This is your Stripe CLI webhook secret for testing your endpoint locally.
-    const endpointSecret = "whsec_808gN8gl7EvW3YquiQg8f4ttY4PsDotO";
+    const endpointSecret = process.env.WEBHOOK_SECRET;
 
     const sig = req.headers['stripe-signature'];
     // console.log(sig)
