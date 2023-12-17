@@ -59,6 +59,15 @@ const quizSchema = new mongoose.Schema({
       message: 'Total marks must be the product of markForEach and length',
     },
   },
+  isPaid:{
+    type:Boolean,
+    default:false,
+  },
+  price:{
+    type:Number,
+    required:false,
+    default:0,
+  }
   // Add more fields as needed
 }, {
   timestamps: true, // Adds createdAt and updatedAt timestamps

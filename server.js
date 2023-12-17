@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const path = require('path')
+const path = require('path');
+const { addPaidMaterial } = require('./controllers/paymentControllers');
 
 //creating server app
 const app = express()
@@ -12,6 +13,9 @@ require('./db/connection')
 
 // enabling cors
 app.use(cors());
+
+// buying webhook,,,, code is here for some reason
+app.post('/payment/buyMaterial', express.raw({ type: 'application/json' }), addPaidMaterial)
 //converting any json response to object
 app.use(express.json());
 

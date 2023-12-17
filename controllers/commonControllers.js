@@ -11,6 +11,8 @@ const Question = require('../models/Question')
 const { formatDate, convertToLowerCase, removeEmptyKeys } = require('../utils/formateString')
 const MaterialBookmark = require('../models/MaterialBookmark')
 const QuizBookmark = require('../models/QuizBookmark')
+const PaidMaterial = require('../models/PaidMaterial')
+const PaidQuiz = require('../models/PaidQuiz')
 
 // ======= registering user ============
 const registerUser = async (req, res) => {
@@ -195,9 +197,22 @@ const createMaterial = async (req, res) => {
 //--------------- fetch materials --------------------------
 const fetchMaterials = async (req, res) => {
     try {
+        const userId = req.params.id;
         req.body = removeEmptyKeys(req.body)
+
+        // all materials matching filter
         const materials = await StudyMaterial.find(convertToLowerCase(req.body));
-        res.status(200).json(materials);
+        // console.log("all, ", materials)
+
+        // paid materials of the user
+        const paidMaterials = (await PaidMaterial.find({ user: userId }).populate('material')).map((paidMaterialsDoc) => paidMaterialsDoc.material)
+        // console.log("paid ", paidMaterials)
+
+        // filtered unpaid materials
+        const unpaidMaterials = materials.filter(material => !paidMaterials.some(paidMaterial => paidMaterial.id === material.id));
+        // console.log("unpaid...",unpaidMaterials)
+
+        res.status(200).json(unpaidMaterials);
     } catch (err) {
         console.log(err)
         res.status(500).json({ msg: "something went wrong", error: err })
@@ -431,11 +446,18 @@ const fetchQuizes = async (req, res) => {
     try {
 
         req.body = removeEmptyKeys(req.body);
+        const userId = req.params.id;
 
         // Fetch quizzes based on the query
         const quizzes = await Quiz.find(convertToLowerCase(req.body));
 
-        res.status(200).json(quizzes);
+        // paid quizzes of the user
+        const paidQuizzes = (await PaidQuiz.find({ user: userId }).populate('quiz')).map((paidQuizzesDoc) => paidQuizzesDoc.quiz)
+
+        // filtered unpaid quizzes
+        const unpaidQuizzes = quizzes.filter(quiz => !paidQuizzes.some(paidQuiz => paidQuiz.id === quiz.id));
+
+        res.status(200).json(unpaidQuizzes);
     } catch (error) {
         console.error('Error fetching quizzes:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -476,6 +498,36 @@ const fetchQuiz = async (req, res) => {
     }
 };
 
+//------------- fetch paid materials --------------------
+const fetchPaidMaterials = async (req, res) => {
+    try {
+
+        const userId = req.params.id;
+
+        // paid materials of the user
+        const paidMaterials = (await PaidMaterial.find({ user: userId }).populate('material')).map((paidMaterialsDoc) => paidMaterialsDoc.material);
+
+        res.status(200).json(paidMaterials);
+    } catch (error) {
+        console.error('Error fetching quizzes:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+//------------- fetch paid quizzes --------------------
+const fetchPaidQuizzes = async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        // paid materials of the user
+        const paidQuizzes = (await PaidMaterial.find({ user: userId }).populate('material')).map((paidQuizzesDoc) => paidQuizzesDoc.material);
+
+        res.status(200).json(paidQuizzes);
+    } catch (error) {
+        console.error('Error fetching quizzes:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 
 // Helper function to check if a string is a valid MongoDB ObjectId
 function isValidObjectId(id) {
@@ -494,4 +546,5 @@ module.exports = {
     submitDoubt,
     createQod, fetchQod,
     createQuiz, fetchQuizes, fetchQuiz,
+    fetchPaidMaterials, fetchPaidQuizzes
 }

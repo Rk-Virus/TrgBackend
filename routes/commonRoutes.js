@@ -21,7 +21,9 @@ const {
     createQuiz,
     fetchQuizes,
     fetchQuiz,
-    // uploadCarousel
+    // uploadCarousel,
+    fetchPaidMaterials,
+    fetchPaidQuizzes,
 } = require("../controllers/commonControllers");
 
 const { validateUserSignUp, userValidation } = require('../middlewares/validation/user')
@@ -47,7 +49,7 @@ router.get("/fetch-announcements", fetchAnnouncements)
 
 // study material apis
 router.post("/create-material", createMaterial)
-router.post("/fetch-materials", fetchMaterials)
+router.post("/fetch-materials/:id", fetchMaterials)
 
 // bookmark apis
 router.post("/add-bookmark", addBookmark)
@@ -63,9 +65,11 @@ router.get("/fetch-qod", fetchQod)
 
 // quiz apis
 router.post("/create-quiz", createQuiz)
-router.post("/fetch-quizes", fetchQuizes)
+router.post("/fetch-quizes/:id", fetchQuizes)
 router.get("/fetch-quiz/:id", fetchQuiz)
 
-// 
+// paid api
+router.get("/fetch-paid-materials/:id", fetchPaidMaterials)
+router.get("/fetch-paid-quizes/:id", fetchPaidQuizzes)
 
 module.exports = router
