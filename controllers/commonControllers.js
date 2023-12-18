@@ -56,7 +56,7 @@ const registerUser = async (req, res) => {
 //=== checking verification code =====
 const verifyCode = async (req, res) => {
     try {
-        const { email, verifyCode } = req.body
+        const { email, verifyCode, password } = req.body
         // checking if user exist
         const foundUser = await User.findOne({ email })
 
@@ -65,12 +65,46 @@ const verifyCode = async (req, res) => {
 
         //if matched
         foundUser.isVerified = true;
+        
+        //more logic for forget pass (if any)
+        if(password){
+            foundUser.password = password;
+        }
+
         await foundUser.save()
-        return res.status(200).json({ msg: "Email verified successfully!", response: foundUser })
+
+        return res.status(200).json({ msg: "Success!", response: foundUser })
 
     } catch (err) {
         console.log(err)
         res.status(500).json({ msg: "something went wrong", error: err })
+    }
+}
+
+// =========== forgot password ========
+const sendOTP = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // generating a 4-digit code
+        const verifyCode = Math.floor(1000 + Math.random() * 9000);
+
+        // sending verification mail
+        await sendMail(email, verifyCode)
+
+        // checking if user exist
+        const foundUser = await User.findOne({ email })
+        if (!foundUser) return res.status(200).json({ msg: "user not found" })
+
+        // setting new otp
+        foundUser.verifyCode = verifyCode;
+        await foundUser.save()
+        return res.status(200).json({ msg: "OTP Sent!" })
+
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ msg: "something went wrong", error: error })
     }
 }
 
@@ -546,5 +580,6 @@ module.exports = {
     submitDoubt,
     createQod, fetchQod,
     createQuiz, fetchQuizes, fetchQuiz,
-    fetchPaidMaterials, fetchPaidQuizzes
+    fetchPaidMaterials, fetchPaidQuizzes,
+    sendOTP
 }

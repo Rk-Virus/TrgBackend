@@ -18,7 +18,7 @@ const sendMail = async (email, verifyCode) => {
         const info = await transporter.sendMail({
             from: `"The Right Guru Team" <${process.env.SENDER_EMAIL}>`, // sender address
             to: email, // list of receivers
-            subject: "Email Verification Code", // Subject line
+            subject: "Email Verification Code (or you may have requested it to change your password)", // Subject line
             html: `<b>Hi ${email}</b> <br/> Here is your email verification code : <b>${verifyCode}</b>  `, // html body
         });
 
