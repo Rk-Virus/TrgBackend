@@ -553,8 +553,8 @@ const fetchPaidQuizzes = async (req, res) => {
     try {
         const userId = req.params.id;
 
-        // paid materials of the user
-        const paidQuizzes = (await PaidMaterial.find({ user: userId }).populate('material')).map((paidQuizzesDoc) => paidQuizzesDoc.material);
+        // paid quizes of the user
+        const paidQuizzes = (await PaidQuiz.find({ user: userId }).populate('quiz')).map((paidQuizzesDoc) => paidQuizzesDoc.quiz);
 
         res.status(200).json(paidQuizzes);
     } catch (error) {
