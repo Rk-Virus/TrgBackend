@@ -13,6 +13,7 @@ const MaterialBookmark = require('../models/MaterialBookmark')
 const QuizBookmark = require('../models/QuizBookmark')
 const PaidMaterial = require('../models/PaidMaterial')
 const PaidQuiz = require('../models/PaidQuiz')
+const Video = require('../models/Video')
 
 // ======= registering user ============
 const registerUser = async (req, res) => {
@@ -65,9 +66,9 @@ const verifyCode = async (req, res) => {
 
         //if matched
         foundUser.isVerified = true;
-        
+
         //more logic for forget pass (if any)
-        if(password){
+        if (password) {
             foundUser.password = password;
         }
 
@@ -563,6 +564,42 @@ const fetchPaidQuizzes = async (req, res) => {
     }
 };
 
+// POST endpoint to add promotional video
+const addVideo = async (req, res) => {
+    try {
+        const {videoId } = req.body;
+
+        // Check if title and videoId are provided
+        if (!videoId) {
+            return res.status(400).json({ error: 'VideoId are required' });
+        }
+
+        const video = await Video.create(req.body)
+
+        // Respond with success message
+        res.json({ message: 'Video added successfully' });
+
+    } catch (error) {
+        console.error('Error creating Question of the Day:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+// Arrow function for handling GET request to fetch videos
+const fetchVideos = async (req, res) => {
+    try {
+      // Fetch all videos from the database
+      const videos = await Video.find();
+  
+      // Respond with the fetched videos
+      res.json(videos);
+    } catch (error) {
+      console.error('Error fetching videos:', error.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+
+
 // Helper function to check if a string is a valid MongoDB ObjectId
 function isValidObjectId(id) {
     const mongoose = require('mongoose');
@@ -581,5 +618,6 @@ module.exports = {
     createQod, fetchQod,
     createQuiz, fetchQuizes, fetchQuiz,
     fetchPaidMaterials, fetchPaidQuizzes,
-    sendOTP
+    sendOTP,
+    addVideo, fetchVideos
 }

@@ -25,6 +25,8 @@ const {
     fetchPaidMaterials,
     fetchPaidQuizzes,
     sendOTP,
+    addVideo,
+    fetchVideos,
 } = require("../controllers/commonControllers");
 
 const { validateUserSignUp, userValidation } = require('../middlewares/validation/user')
@@ -75,5 +77,9 @@ router.get("/fetch-paid-quizes/:id", fetchPaidQuizzes)
 
 //forgot password
 router.post("/send-otp", sendOTP)
+
+//video apis
+router.post("/add-video", addVideo)
+router.get("/fetch-videos", fetchVideos)
 
 module.exports = router
