@@ -143,9 +143,11 @@ const createOrder = async (req, res) => {
       notes:{userId, materialId}
     };
     instance.orders.create(options, function (err, order) {
-      console.log(order);
+      if (!err)
+      res.json({order})
+      else
+      res.json({err})
     });
-    res.json({success:true})
   } catch (error) {
     console.error('Error buying material:', error);
     res.status(500).json({ error: 'Internal Server Error' });
