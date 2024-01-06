@@ -1,4 +1,5 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Razorpay = require('razorpay');
 // This example sets up an endpoint using the Express framework.
 const PaidMaterial = require('../models/PaidMaterial')
 const PaidQuiz = require('../models/PaidQuiz');
@@ -6,17 +7,12 @@ const Quiz = require('../models/Quiz');
 const StudyMaterial = require('../models/StudyMaterial');
 const User = require('../models/User');
 
+
+
 //-------------- payment intent api ------------------
 const handleIntent = async (req, res) => {
   try {
     const { amount, userId, materialId } = req.body;
-    // console.log(req.body)
-    // Use an existing Customer ID if this is a returning customer.
-    // const customer = await stripe.customers.create();
-    // const ephemeralKey = await stripe.ephemeralKeys.create(
-    //   {customer: customer.id},
-    //   {apiVersion: '2023-10-16'}
-    // );
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount, //int in paise
       currency: 'INR',
@@ -119,7 +115,7 @@ const addPaidMaterial = async (req, res) => {
         // Save the bookmark to the database
         await newPaidMaterial.save();
 
-        return res.status(201).json({msg:"Success!"});
+        return res.status(201).json({ msg: "Success!" });
 
       default:
         // Unexpected event type
@@ -134,4 +130,27 @@ const addPaidMaterial = async (req, res) => {
 };
 
 
-module.exports = { handleIntent, addPaidMaterial }
+const createOrder = async (req, res) => {
+  try {
+    const { amount, userId, materialId } = req.body;
+    const Razorpay = require('razorpay');
+    var instance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET })
+
+    var options = {
+      amount: amount,  // amount in the smallest currency unit
+      currency: "INR",
+      // receipt: "order_rcptid_11"
+      notes:{userId, materialId}
+    };
+    instance.orders.create(options, function (err, order) {
+      console.log(order);
+    });
+    res.json({success:true})
+  } catch (error) {
+    console.error('Error buying material:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+
+module.exports = { handleIntent, addPaidMaterial, createOrder }
