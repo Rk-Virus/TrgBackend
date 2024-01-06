@@ -1,9 +1,6 @@
 const express = require("express");
-const { handleIntent, createOrder, verifyPayment } = require("../controllers/paymentControllers");
+const {createOrder, verifyPayment } = require("../controllers/paymentControllers");
 const router = express.Router()
-
-// stripe payment apis
-router.post('/intent', handleIntent)
 
 // razorpay payment apis
 router.post('/create-order/', createOrder)

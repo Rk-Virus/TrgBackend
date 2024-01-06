@@ -14,8 +14,6 @@ require('./db/connection')
 // enabling cors
 app.use(cors());
 
-// buying webhook,,,, code is here for some reason
-app.post('/payment/buyMaterial', express.raw({ type: 'application/json' }), addPaidMaterial)
 //converting any json response to object
 app.use(express.json());
 
