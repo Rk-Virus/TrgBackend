@@ -154,5 +154,15 @@ const createOrder = async (req, res) => {
   }
 }
 
+const verifyPayment = async (req, res) =>{
+  try {
+    console.log(req.body)
+    res.json({success:true})
+  } catch (error) {
+    console.error('Error buying material:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
 
-module.exports = { handleIntent, addPaidMaterial, createOrder }
+
+module.exports = { handleIntent, addPaidMaterial, createOrder, verifyPayment }
