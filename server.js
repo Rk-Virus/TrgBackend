@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { addPaidMaterial } = require('./controllers/paymentControllers');
 
 //creating server app
 const app = express()

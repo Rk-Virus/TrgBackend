@@ -15,6 +15,9 @@ const PaidMaterial = require('../models/PaidMaterial')
 const PaidQuiz = require('../models/PaidQuiz')
 const Video = require('../models/Video')
 
+//security key
+const secret_key = process.env.TRG_SECRET
+
 // ======= registering user ============
 const registerUser = async (req, res) => {
     // destructuring from request body
@@ -136,25 +139,6 @@ const loginUser = async (req, res) => {
     }
 }
 
-// ---------------- update Password ------------------------
-const updatePassword = async (req, res) => {
-    try {
-        const { phoneNo, password } = req.body
-        const foundUser = await User.findOne({ phoneNo })
-        if (!foundUser) {
-            return res.status(404).json({ msg: "User doesn't exist with provided phone number" })
-        }
-
-        foundUser.password = password
-        await foundUser.save()
-        res.status(200).json({ msg: 'success' })
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ msg: "something went wrong", error: error })
-    }
-
-}
-
 // ============= update profile ====================
 const updateProfile = async (req, res) => {
     try {
@@ -173,9 +157,12 @@ const updateProfile = async (req, res) => {
 //--------------- upload carousel --------------------------
 const uploadCarousel = async (req, res) => {
     try {
-        const carouselItem = new Carousel(req.body)
-        await carouselItem.save();
-        res.status(200).json({ msg: "Carousel item uploaded!" })
+        if (req.params.key === secret_key) {
+            const carouselItem = new Carousel(req.body)
+            await carouselItem.save();
+            res.status(200).json({ msg: "Carousel item uploaded!" })
+        }
+        else res.status(400).json({ msg: "Unauthorised Access!" })
     } catch (err) {
         console.log(err)
         res.status(500).json({ msg: "something went wrong", error: err })
@@ -196,9 +183,12 @@ const fetchCarousel = async (req, res) => {
 //---------- create announcement ----------
 const createAnnouncement = async (req, res) => {
     try {
-        const announcement = new Announcement(req.body);
-        await announcement.save();
-        res.status(200).json({ msg: "Announcement created!" })
+        if (req.params.key === secret_key) {
+            const announcement = new Announcement(req.body);
+            await announcement.save();
+            res.status(200).json({ msg: "Announcement created!" })
+        }
+        else res.status(400).json({ msg: "Unauthorised Access!" })
     } catch (error) {
         console.log(err)
         res.status(500).json({ msg: "something went wrong", error: err })
@@ -220,9 +210,12 @@ const fetchAnnouncements = async (req, res) => {
 //---------------- create material ------------------------
 const createMaterial = async (req, res) => {
     try {
-        const material = new StudyMaterial(convertToLowerCase(req.body));
-        await material.save();
-        res.status(200).json({ msg: "Study Material added!" })
+        if (req.params.key === secret_key) {
+            const material = new StudyMaterial(convertToLowerCase(req.body));
+            await material.save();
+            res.status(200).json({ msg: "Study Material added!" })
+        }
+        else res.status(400).json({ msg: "Unauthorised Access!" })
     } catch (err) {
         console.log(err)
         res.status(500).json({ msg: "something went wrong", error: err })
@@ -397,19 +390,23 @@ const submitDoubt = async (req, res) => {
 // POST endpoint to create a Question of the Day
 const createQod = async (req, res) => {
     try {
-        // Extract relevant data from the request body
-        const { question, answer, options, category, date } = req.body;
+        if (req.params.key === secret_key) {
+            // Extract relevant data from the request body
+            const { question, answer, options, category, date } = req.body;
 
-        // Create a new Question of the Day using the QOD model
-        const newQOD = await QOD.create({
-            question,
-            answer,
-            options,
-            category,
-            date,
-        });
+            // Create a new Question of the Day using the QOD model
+            const newQOD = await QOD.create({
+                question,
+                answer,
+                options,
+                category,
+                date,
+            });
 
-        res.status(201).json(newQOD);
+            res.status(201).json(newQOD);
+        }
+        else res.status(400).json({ msg: "Unauthorised Access!" })
+
     } catch (error) {
         console.error('Error creating Question of the Day:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -442,34 +439,39 @@ const fetchQod = async (req, res) => {
 //----------------- create quiz -------------------------
 const createQuiz = async (req, res) => {
     try {
-        // Extract quiz data and questions data from the request body
-        const { quizData, questionsData } = req.body;
+        if (req.params.key === secret_key) {
 
-        // Create a blank quiz
-        const blankQuiz = await Quiz.create(quizData[0]); // ...[0] to take quize data
+            // Extract quiz data and questions data from the request body
+            const { quizData, questionsData } = req.body;
 
-        // Map questions data to include the quizId
-        const questionsToCreate = questionsData.map(questionData => ({
-            ...questionData,
-            // converting option string into array
-            options: questionData.options.split(',').map(option => option.trim()),
-            quizId: blankQuiz._id,
-        }));
+            // Create a blank quiz
+            const blankQuiz = await Quiz.create(quizData[0]); // ...[0] to take quize data
 
-        // Create and save all questions
-        const createdQuestions = await Question.insertMany(questionsToCreate);
+            // Map questions data to include the quizId
+            const questionsToCreate = questionsData.map(questionData => ({
+                ...questionData,
+                // converting option string into array
+                options: questionData.options.split(',').map(option => option.trim()),
+                quizId: blankQuiz._id,
+            }));
 
-        // Extract the IDs of the created questions
-        const createdQuestionIds = createdQuestions.map(question => question._id);
+            // Create and save all questions
+            const createdQuestions = await Question.insertMany(questionsToCreate);
 
-        // Update the blank quiz with the IDs of the created questions
-        await Quiz.findByIdAndUpdate(
-            blankQuiz._id,
-            { $set: { questions: createdQuestionIds } },
-            { new: true }
-        );
+            // Extract the IDs of the created questions
+            const createdQuestionIds = createdQuestions.map(question => question._id);
 
-        res.status(201).json({ message: 'Quiz and questions created successfully' });
+            // Update the blank quiz with the IDs of the created questions
+            await Quiz.findByIdAndUpdate(
+                blankQuiz._id,
+                { $set: { questions: createdQuestionIds } },
+                { new: true }
+            );
+
+            res.status(201).json({ message: 'Quiz and questions created successfully' });
+        }
+        else res.status(400).json({ msg: "Unauthorised Access!" })
+
     } catch (error) {
         console.error('Error creating quiz and questions:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -567,7 +569,9 @@ const fetchPaidQuizzes = async (req, res) => {
 // POST endpoint to add promotional video
 const addVideo = async (req, res) => {
     try {
-        const {videoId } = req.body;
+        if (req.params.key === secret_key) {
+
+        const { videoId } = req.body;
 
         // Check if title and videoId are provided
         if (!videoId) {
@@ -578,6 +582,8 @@ const addVideo = async (req, res) => {
 
         // Respond with success message
         res.json({ message: 'Video added successfully' });
+    }
+    else res.status(400).json({ msg: "Unauthorised Access!" })
 
     } catch (error) {
         console.error('Error creating Question of the Day:', error);
@@ -588,16 +594,16 @@ const addVideo = async (req, res) => {
 // Arrow function for handling GET request to fetch videos
 const fetchVideos = async (req, res) => {
     try {
-      // Fetch all videos from the database
-      const videos = await Video.find();
-  
-      // Respond with the fetched videos
-      res.json(videos);
+        // Fetch all videos from the database
+        const videos = await Video.find();
+
+        // Respond with the fetched videos
+        res.json(videos);
     } catch (error) {
-      console.error('Error fetching videos:', error.message);
-      res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error fetching videos:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-  };
+};
 
 
 // Helper function to check if a string is a valid MongoDB ObjectId
@@ -610,7 +616,7 @@ function isValidObjectId(id) {
 module.exports = {
     registerUser, loginUser,
     fetchCarousel, uploadCarousel,
-    updatePassword, updateProfile, verifyCode,
+    updateProfile, verifyCode,
     createAnnouncement, fetchAnnouncements,
     createMaterial, fetchMaterials,
     addBookmark, fetchBookmarks, checkIfBookmarked,

@@ -5,7 +5,6 @@ const {
     registerUser,
     loginUser,
     updateProfile,
-    updatePassword,
     verifyCode,
     fetchCarousel,
     createAnnouncement,
@@ -21,7 +20,7 @@ const {
     createQuiz,
     fetchQuizes,
     fetchQuiz,
-    // uploadCarousel,
+    uploadCarousel,
     fetchPaidMaterials,
     fetchPaidQuizzes,
     sendOTP,
@@ -37,21 +36,20 @@ const isAuthenticated = require('../middlewares/isAuthenticated')
 router.post("/register", validateUserSignUp, userValidation, registerUser)
 router.post("/login", loginUser)
 router.post("/update-profile", isAuthenticated, updateProfile)
-router.post('/reset-password', updatePassword)
 
 // email verification
 router.post("/verify-code", verifyCode)  
 
 // carousel apis
 router.get("/fetch-carousel", fetchCarousel)
-// router.post("/upload-carousel", uploadCarousel)
+router.post("/upload-carousel/:key", uploadCarousel)
 
 // announcement apis
-router.post("/create-announcement", createAnnouncement)
+router.post("/create-announcement/:key", createAnnouncement)
 router.get("/fetch-announcements", fetchAnnouncements)
 
 // study material apis
-router.post("/create-material", createMaterial)
+router.post("/create-material/:key", createMaterial)
 router.post("/fetch-materials/:id", fetchMaterials)
 
 // bookmark apis
@@ -63,11 +61,11 @@ router.post("/check-if-bookmarked", checkIfBookmarked)
 router.post("/submit-doubt", submitDoubt)
 
 // qod apis
-router.post("/create-qod", createQod)
+router.post("/create-qod/:key", createQod)
 router.get("/fetch-qod", fetchQod)
 
 // quiz apis
-router.post("/create-quiz", createQuiz)
+router.post("/create-quiz/:key", createQuiz)
 router.post("/fetch-quizes/:id", fetchQuizes)
 router.get("/fetch-quiz/:id", fetchQuiz)
 
@@ -79,7 +77,7 @@ router.get("/fetch-paid-quizes/:id", fetchPaidQuizzes)
 router.post("/send-otp", sendOTP)
 
 //video apis
-router.post("/add-video", addVideo)
+router.post("/add-video/:key", addVideo)
 router.get("/fetch-videos", fetchVideos)
 
 module.exports = router

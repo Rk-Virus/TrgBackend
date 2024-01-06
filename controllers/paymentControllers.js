@@ -99,4 +99,4 @@ const verifyPayment = async (req, res) => {
 }
 
 
-module.exports = { addPaidMaterial, createOrder, verifyPayment }
+module.exports = { createOrder, verifyPayment }
