@@ -22,7 +22,7 @@ const sendMail = async (email, verifyCode) => {
             html: `<b>Hi ${email}</b> <br/> Here is your email verification code : <b>${verifyCode}</b>  `, // html body
         });
 
-        console.log("Email sent: %s", info.messageId);
+        // console.log("Email sent: %s", info.messageId);
     }
     catch (err) {
         console.log(err)

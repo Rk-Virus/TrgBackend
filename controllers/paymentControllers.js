@@ -1,5 +1,3 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const Razorpay = require('razorpay');
 // This example sets up an endpoint using the Express framework.
 const PaidMaterial = require('../models/PaidMaterial')
 const PaidQuiz = require('../models/PaidQuiz');
