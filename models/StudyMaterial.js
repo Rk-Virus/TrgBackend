@@ -22,7 +22,7 @@ const studyMaterialSchema = new mongoose.Schema({
   },
   subject: {
     type: String,
-    enum: ["maths", "science", "english", "hindi", "social studies", "sanskrit", "computer science"]
+    enum: ["hindi", "english", "maths", "science", "social studies", "sanskrit", "computer science", "environmental studies", "rhymes", "general knowledge", "french", "urdu", "punjabi", "drawing", "reasoning", "home science", "history", "geography", "political science", "economics", "physical education", "psychology", "yoga", "spanish", "sociology", "accountancy", "business studies", "entrepreneurship development", "german", "physics", "chemistry", "biology", "information technology"]
   },
   pdfUrl: {
     type: String,

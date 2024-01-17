@@ -9,16 +9,16 @@ const quizSchema = new mongoose.Schema({
   course: {
     type: String,
     required: true,
-    enum: ['cbse', 'icse', 'ssc','cuet','clat','dsssb','police'], // Adjust based on your quiz types
+    enum: ['cbse', 'icse', 'ssc','cuet','clat','dsssb','police','nda','cds','gmat','gre','sat'], // Adjust based on your quiz types
   },
-  class: {
-    type: Number,
-    enum: [1,2,3,4,5,6,7,8,9,10,11,12]
-  },
-  subject: {
-    type: String,
-    enum: ["english", "mathmatics", "sst", "hindi", "sanskrit", "science"]
-  },
+  // class: {
+  //   type: Number,
+  //   enum: [1,2,3,4,5,6,7,8,9,10,11,12]
+  // },
+  // subject: {
+  //   type: String,
+  //   enum: ["english", "mathmatics", "sst", "hindi", "sanskrit", "science"]
+  // },
   questions:{
     type: [String],
     default:[]
