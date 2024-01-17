@@ -9,7 +9,7 @@ const quizSchema = new mongoose.Schema({
   course: {
     type: String,
     required: true,
-    enum: ['cbse', 'icse', 'ssc','cuet','clat','dsssb','police','nda','cds','gmat','gre','sat'], // Adjust based on your quiz types
+    enum: ['ssc','cuet','clat','dsssb','nda','cds','gmat','gre','sat'], // Adjust based on your quiz types
   },
   // class: {
   //   type: Number,

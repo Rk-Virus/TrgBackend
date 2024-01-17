@@ -445,7 +445,7 @@ const createQuiz = async (req, res) => {
             const { quizData, questionsData } = req.body;
 
             // Create a blank quiz
-            const blankQuiz = await Quiz.create(quizData[0]); // ...[0] to take quize data
+            const blankQuiz = await Quiz.create(convertToLowerCase(quizData[0])); // ...[0] to take quize data
 
             // Map questions data to include the quizId
             const questionsToCreate = questionsData.map(questionData => ({
