@@ -16,6 +16,9 @@ app.use(cors());
 //converting any json response to object
 app.use(express.json());
 
+// For saving resumes
+app.use("/files", express.static("files"));
+
 // home route... just to test
 app.get('/', (req, res) => {
   return res.send({msg:"Hello from Trg Backend!"})

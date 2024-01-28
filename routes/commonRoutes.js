@@ -4,6 +4,7 @@ const router = express.Router()
 const {
     registerUser,
     loginUser,
+    loginAdmin,
     updateProfile,
     verifyCode,
     fetchCarousel,
@@ -28,13 +29,33 @@ const {
     fetchVideos,
 } = require("../controllers/commonControllers");
 
-const { validateUserSignUp, userValidation } = require('../middlewares/validation/user')
-const isAuthenticated = require('../middlewares/isAuthenticated')
+const { createCareerForm, updateCareerForm, deleteCareerForm, getAllCareerForms,
+    createFranchiseForm, updateFranchiseForm, deleteFranchiseForm, getAllFranchiseForms,
+    createInternshipForm, updateInternshipForm, deleteInternshipForm, getAllInternshipForms   
+ } = require("../controllers/adminControllers");
 
+const { validateUserSignUp, userValidation } = require('../middlewares/validation/user')
+const { isAuthenticated, verifyAdmin } = require('../middlewares/isAuthenticated')
+
+// MULTER code
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "../files");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now();
+    cb(null, uniqueSuffix + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 // apis with their controllers
 router.post("/register", validateUserSignUp, userValidation, registerUser)
 router.post("/login", loginUser)
+router.post("/admin-login", loginAdmin)
 router.post("/update-profile", isAuthenticated, updateProfile)
 
 // email verification
@@ -79,5 +100,22 @@ router.post("/send-otp", sendOTP)
 //video apis
 router.post("/add-video/:key", addVideo)
 router.get("/fetch-videos", fetchVideos)
+
+// Forms api
+router.post("/career-form/", upload.single("file"), createCareerForm);
+router.put("/career-form/:id", verifyAdmin, updateCareerForm);
+router.delete("/career-form/:id", verifyAdmin, deleteCareerForm);
+router.get("/career-form/", verifyAdmin, getAllCareerForms);
+ 
+router.post("/franchise-form/", createFranchiseForm);
+router.put("/franchise-form/:id", verifyAdmin, updateFranchiseForm);
+router.delete("/franchise-form/:id", verifyAdmin, deleteFranchiseForm);
+router.get("/franchise-form/", verifyAdmin, getAllFranchiseForms);
+ 
+router.post("/internship-form/", createInternshipForm);
+router.put("/internship-form/:id", verifyAdmin, updateInternshipForm);
+router.delete("/internship-form/:id", verifyAdmin, deleteInternshipForm);
+router.get("/internship-form/", verifyAdmin, getAllInternshipForms);
+ 
 
 module.exports = router
