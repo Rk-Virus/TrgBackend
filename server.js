@@ -2,19 +2,27 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 
 //creating server app
-const app = express()
+const app = express();
+app.use(cookieParser());
+
 const port = process.env.PORT || 3000
+// enabling cors
+app.use(cors({
+  credentials: true,
+  origin: ['http://localhost:3001', 'http://localhost:3000'] // Adjust to match your client's origin
+}));
 
 // connecting to db
 require('./db/connection')
 
-// enabling cors
-app.use(cors());
-
 //converting any json response to object
 app.use(express.json());
+
+// For saving resumes
+app.use("/files", express.static("files"));
 
 // home route... just to test
 app.get('/', (req, res) => {

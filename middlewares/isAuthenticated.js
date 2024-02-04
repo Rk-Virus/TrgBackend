@@ -7,10 +7,10 @@ const isAuthenticated = async (req, res, next) =>{
         if(req.headers.authorization){
             token = req.headers.authorization.split(' ')[1]
         }else{
-            token = req.cookies.token
+            token = req.cookies.jwtoken
         }
 
-        if(!token) return res.status(401).json({msg : "Please Login"})
+        if(!token) return res.status(401).json({msg : "Please login!"})
     
         const decodedData =  jwt.verify(token, process.env.JWT_SECRET)
         const resp = await User.findById(decodedData._id).select("-password")
@@ -18,8 +18,19 @@ const isAuthenticated = async (req, res, next) =>{
         next()
     } catch (err) {
         console.log(err)
-        res.status(500).json({msg : "something went wrong in authentication", error : err.message})
+        res.status(500).json({msg : "Something went wrong in authentication", error : err.message})
     }
 }
 
-module.exports = isAuthenticated
+const verifyAdmin = (req, res, next) => {
+    isAuthenticated(req, res, next, () => {
+        if(req.user.isAdmin && req.user.id === req.params.id){
+            next();
+        }
+        else{
+            return res.status(500).json({msg : "You are not an admin!", error : err.message})
+        }
+    });
+}
+
+module.exports = { isAuthenticated, verifyAdmin };

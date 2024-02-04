@@ -112,32 +112,54 @@ const sendOTP = async (req, res) => {
     }
 }
 
-
 // ============Login User===============
-const loginUser = async (req, res) => {
+const login = async (req, res, userType) => {
     const { phoneNoOrEmail, password } = req.body;
-    if (!phoneNoOrEmail || !password) return res.status(422).json({ msg: "one or more fields required" })
+    
+    if (!phoneNoOrEmail || !password) {
+        return res.status(422).json({ msg: "One or more fields required" });
+    }
+
     try {
+        const query = userType === 'admin' ? { isAdmin: true } : {};
         const foundUser = await User.findOne({
+            ...query,
             $or: [{ email: phoneNoOrEmail }, { phoneNo: phoneNoOrEmail }],
         });
-        if (!foundUser) return res.status(401).json({ msg: "Incorrect phoneNo/email or password" })
-        if (!foundUser.isVerified) return res.status(401).json({ msg: "Sorry, Email isn't verified yet!" })
 
-        console.log(foundUser)
+        if (!foundUser) {
+            return res.status(401).json({ msg: `Incorrect ${userType} credentials` });
+        }
 
+        if (!foundUser.isVerified) {
+            return res.status(401).json({ msg: `Sorry, ${userType} email isn't verified yet!` });
+        }
+        
         const isMatching = await foundUser.comparePassword(password);
-        if (!isMatching) return res.status(401).json({ msg: "Either phoneNo/password is wrong" })
+        if (!isMatching) {
+            return res.status(401).json({ msg: `Either ${userType} email/mobile or password is wrong`});
+        }
 
         if (foundUser && isMatching) {
-            sendToken(foundUser, res)
+            sendToken(foundUser, res);
         }
 
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ msg: "something went wrong", error: err })
+        console.log(err);
+        res.status(500).json({ msg: "Something went wrong", error: err });
     }
-}
+};
+
+// Regular User Login
+const loginUser = async (req, res) => {
+    await login(req, res, 'user');
+};
+
+// Admin Login
+const loginAdmin = async (req, res) => {
+    await login(req, res, 'admin');
+};
+
 
 // ============= update profile ====================
 const updateProfile = async (req, res) => {
@@ -614,7 +636,7 @@ function isValidObjectId(id) {
 
 
 module.exports = {
-    registerUser, loginUser,
+    registerUser, loginUser, loginAdmin,
     fetchCarousel, uploadCarousel,
     updateProfile, verifyCode,
     createAnnouncement, fetchAnnouncements,

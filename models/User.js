@@ -46,6 +46,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
     profilePic: {
          // can be of Buffer type 
          type: String,
@@ -103,9 +107,9 @@ userSchema.methods.comparePassword = async function (password) {
 
 // --------generatingToken----------------------------
 userSchema.methods.getToken = function () {
-    return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
+    return jwt.sign({ _id: this._id, isAdmin: this.isAdmin }, process.env.JWT_SECRET, {
         //jwt expires in JWT_EXPIRE days
-        expiresIn: Math.floor(Date.now() / 1000) + process.env.JWT_EXPIRE * 24 * 60 * 60
+        expiresIn: process.env.JWT_EXPIRE * 24 * 60 * 60
     })
 }
 
