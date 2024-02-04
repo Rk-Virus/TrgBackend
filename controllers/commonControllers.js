@@ -128,7 +128,7 @@ const login = async (req, res, userType) => {
         });
 
         if (!foundUser) {
-            return res.status(401).json({ msg: `Incorrect ${userType} credentials or password` });
+            return res.status(401).json({ msg: `Incorrect ${userType} credentials` });
         }
 
         if (!foundUser.isVerified) {
@@ -137,7 +137,7 @@ const login = async (req, res, userType) => {
         
         const isMatching = await foundUser.comparePassword(password);
         if (!isMatching) {
-            return res.status(401).json({ msg: `Either ${userType} credentials or password is wrong` });
+            return res.status(401).json({ msg: `Either ${userType} email/mobile or password is wrong`});
         }
 
         if (foundUser && isMatching) {
