@@ -13,9 +13,7 @@ const internshipFormSchema = new mongoose.Schema({
         type: String,
         trim: true,
         lowercase: true,
-        unique: true,
         required: true,
-        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
     },
     status:{
         type: String,
@@ -31,20 +29,17 @@ const internshipFormSchema = new mongoose.Schema({
         required: true
     },
     exam:{
-        type: String,
-        required: true
+        type: String
     },
     language:{
-        type: String,
-        required: true
+        type: String
     },
     qualification:{
         type: String,
         required: true
     },
     subject:{
-        type: String,
-        required: true
+        type: String
     },
     experience:{
         type: String,

@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
-const createError = require("../utils/tokenUtils")
 
 const isAuthenticated = async (req, res, next) =>{
     try {
@@ -29,7 +28,7 @@ const verifyAdmin = (req, res, next) => {
             next();
         }
         else{
-            return next(createError(403, "You are not an Admin!"))
+            return res.status(500).json({msg : "You are not an admin!", error : err.message})
         }
     });
 }

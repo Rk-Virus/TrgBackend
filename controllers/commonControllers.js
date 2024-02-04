@@ -134,9 +134,7 @@ const login = async (req, res, userType) => {
         if (!foundUser.isVerified) {
             return res.status(401).json({ msg: `Sorry, ${userType} email isn't verified yet!` });
         }
-
-        console.log(foundUser);
-
+        
         const isMatching = await foundUser.comparePassword(password);
         if (!isMatching) {
             return res.status(401).json({ msg: `Either ${userType} credentials or password is wrong` });
