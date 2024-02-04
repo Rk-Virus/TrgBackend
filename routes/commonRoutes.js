@@ -31,7 +31,7 @@ const {
 
 const { createCareerForm, updateCareerForm, deleteCareerForm, getAllCareerForms,
     createFranchiseForm, updateFranchiseForm, deleteFranchiseForm, getAllFranchiseForms,
-    createInternshipForm, updateInternshipForm, deleteInternshipForm, getAllInternshipForms   
+    createInternshipForm, updateInternshipForm, deleteInternshipForm, getAllInternshipForms, getCareerForm, getFranchiseForm, getInternshipForm   
  } = require("../controllers/adminControllers");
 
 const { validateUserSignUp, userValidation } = require('../middlewares/validation/user')
@@ -112,16 +112,19 @@ router.get("/fetch-videos", fetchVideos)
 router.post("/career-form/", upload.single("file"), createCareerForm);
 router.put("/career-form/:id", verifyAdmin, updateCareerForm);
 router.delete("/career-form/:id", verifyAdmin, deleteCareerForm);
+router.get("/career-form/:id", verifyAdmin, getCareerForm);
 router.get("/career-form/", verifyAdmin, getAllCareerForms);
  
 router.post("/franchise-form/", createFranchiseForm);
 router.put("/franchise-form/:id", verifyAdmin, updateFranchiseForm);
 router.delete("/franchise-form/:id", verifyAdmin, deleteFranchiseForm);
+router.get("/franchise-form/:id", verifyAdmin, getFranchiseForm);
 router.get("/franchise-form/", verifyAdmin, getAllFranchiseForms);
  
 router.post("/internship-form/", createInternshipForm);
 router.put("/internship-form/:id", verifyAdmin, updateInternshipForm);
 router.delete("/internship-form/:id", verifyAdmin, deleteInternshipForm);
+router.get("/internship-form/:id", verifyAdmin, getInternshipForm);
 router.get("/internship-form/", verifyAdmin, getAllInternshipForms);
  
 

@@ -6,8 +6,10 @@ const careerFormSchema = new mongoose.Schema({
         required: true
     },
     lname:{
-        type: String,
-        required: true
+        type: String
+    },
+    fullname:{
+        type: String
     },
     email:{
         type: String,

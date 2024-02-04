@@ -6,11 +6,11 @@ const fs = require('fs').promises;
 
 const createCareerForm = async(req, res) => {
     try{
-        const newCareerInput = new CareerForm({ ...req.body , file: req.file.filename });
+        const newCareerInput = new CareerForm({ ...req.body, fullname: req.body.fname + " " + req.body.lname, file: req.file.filename });
         await newCareerInput.save();
         res.status(200).json("Career form submitted successfully!");
     }catch(err){
-        res.status(401).json({ error: 'Something went wrong!' });
+        res.status(500).json({ error: 'Something went wrong!' });
     }
 }
 
@@ -55,13 +55,23 @@ const getAllCareerForms = async(req, res) => {
     }
 }
 
+const getCareerForm = async(req,res)=>{
+    try{
+        const career = await CareerForm.findById(req.params.id)
+        res.status(200).json(career)
+    }catch(err){
+        res.status(401).json({ error: 'You are not authenticated!' });
+    }
+}
+
+
 const createFranchiseForm = async(req, res) => {
     try{
         const newFranchiseInput = new FranchiseForm(req.body);
         await newFranchiseInput.save();
         res.status(200).json("Franchise form submitted successfully!");
     }catch(err){
-        res.status(401).json({ error: 'Something went wrong!' });
+        res.status(500).json({ error: 'Something went wrong!' });
     }
 }
 
@@ -92,13 +102,22 @@ const getAllFranchiseForms = async(req, res) => {
     }
 }
 
+const getFranchiseForm = async(req,res)=>{
+    try{
+        const franchise = await FranchiseForm.findById(req.params.id)
+        res.status(200).json(franchise)
+    }catch(err){
+        res.status(401).json({ error: 'You are not authenticated!' });
+    }
+}
+
 const createInternshipForm = async(req, res) => {
     try{
         const newInternshipInput = new InternshipForm(req.body);
         await newInternshipInput.save();
         res.status(200).json("Internship form submitted successfully!");
     }catch(err){
-        res.status(401).json({ error: 'Something went wrong!' });
+        res.status(500).json({ error: 'Something went wrong!' });
     }
 }
 
@@ -129,8 +148,17 @@ const getAllInternshipForms = async(req, res) => {
     }
 }
 
+const getInternshipForm = async(req,res)=>{
+    try{
+        const internship = await InternshipForm.findById(req.params.id)
+        res.status(200).json(internship)
+    }catch(err){
+        res.status(401).json({ error: 'You are not authenticated!' });
+    }
+}
+
 module.exports = {
-    createCareerForm, updateCareerForm, deleteCareerForm, getAllCareerForms,
-    createFranchiseForm, updateFranchiseForm, deleteFranchiseForm, getAllFranchiseForms,
-    createInternshipForm, updateInternshipForm, deleteInternshipForm, getAllInternshipForms   
+    createCareerForm, updateCareerForm, deleteCareerForm, getAllCareerForms, getCareerForm,
+    createFranchiseForm, updateFranchiseForm, deleteFranchiseForm, getAllFranchiseForms, getFranchiseForm,
+    createInternshipForm, updateInternshipForm, deleteInternshipForm, getAllInternshipForms, getInternshipForm
 }
