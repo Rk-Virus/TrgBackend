@@ -27,6 +27,7 @@ const {
     sendOTP,
     addVideo,
     fetchVideos,
+    createNote,
 } = require("../controllers/commonControllers");
 
 const { createCareerForm, updateCareerForm, deleteCareerForm, getAllCareerForms,
@@ -77,7 +78,7 @@ router.post("/create-announcement/:key", createAnnouncement)
 router.get("/fetch-announcements", fetchAnnouncements)
 
 // study material apis
-router.post("/create-material/:key", createMaterial)
+router.post("/create-materials/:key", createMaterial)
 router.post("/fetch-materials/:id", fetchMaterials)
 
 // bookmark apis
@@ -127,5 +128,10 @@ router.delete("/internship-form/:id", verifyAdmin, deleteInternshipForm);
 router.get("/internship-form/:id", verifyAdmin, getInternshipForm);
 router.get("/internship-form/", verifyAdmin, getAllInternshipForms);
  
+// study material apis
+router.post("/create-note/:key", createNote);
+// router.post("/fetch-notes/:id", fetchMaterials)
+
+
 
 module.exports = router

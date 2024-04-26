@@ -14,6 +14,7 @@ const QuizBookmark = require('../models/QuizBookmark')
 const PaidMaterial = require('../models/PaidMaterial')
 const PaidQuiz = require('../models/PaidQuiz')
 const Video = require('../models/Video')
+const Note = require('../models/Note')
 
 //security key
 const secret_key = process.env.TRG_SECRET
@@ -628,6 +629,50 @@ const fetchVideos = async (req, res) => {
 };
 
 
+// notes apis
+//---------------- create note ------------------------
+const createNote = async (req, res) => {
+    try {
+        if (req.params.key === secret_key) {
+            const note = new Note(convertToLowerCase(req.body));
+            await note.save();
+            res.status(200).json({ msg: "Notes added!" })
+        }
+        else res.status(400).json({ msg: "Unauthorised Access!" })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ msg: "something went wrong", error: err })
+    }
+}
+
+//--------------- fetch materials --------------------------
+const fetchNotes = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        req.body = removeEmptyKeys(req.body)
+
+        // all materials matching filter
+        const materials = await StudyMaterial.find(convertToLowerCase(req.body));
+        // console.log("all, ", materials)
+
+        // paid materials of the user
+        const paidMaterials = (await PaidMaterial.find({ user: userId }).populate('material')).map((paidMaterialsDoc) => paidMaterialsDoc.material)
+        // console.log("paid ", paidMaterials)
+
+        // filtered unpaid materials
+        const unpaidMaterials = materials.filter(material => !paidMaterials.some(paidMaterial => paidMaterial.id === material.id));
+        // console.log("unpaid...",unpaidMaterials)
+
+        res.status(200).json(unpaidMaterials);
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ msg: "something went wrong", error: err })
+    }
+}
+
+
+
+
 // Helper function to check if a string is a valid MongoDB ObjectId
 function isValidObjectId(id) {
     const mongoose = require('mongoose');
@@ -647,5 +692,6 @@ module.exports = {
     createQuiz, fetchQuizes, fetchQuiz,
     fetchPaidMaterials, fetchPaidQuizzes,
     sendOTP,
-    addVideo, fetchVideos
+    addVideo, fetchVideos,
+    createNote, fetchNotes
 }
