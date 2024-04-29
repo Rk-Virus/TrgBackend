@@ -15,6 +15,7 @@ const PaidMaterial = require('../models/PaidMaterial')
 const PaidQuiz = require('../models/PaidQuiz')
 const Video = require('../models/Video')
 const Note = require('../models/Note')
+const PaidNote = require('../models/PaidNote')
 
 //security key
 const secret_key = process.env.TRG_SECRET
@@ -645,32 +646,66 @@ const createNote = async (req, res) => {
     }
 }
 
-//--------------- fetch materials --------------------------
+//--------------- fetch notes --------------------------
 const fetchNotes = async (req, res) => {
     try {
         const userId = req.params.id;
         req.body = removeEmptyKeys(req.body)
 
-        // all materials matching filter
-        const materials = await StudyMaterial.find(convertToLowerCase(req.body));
-        // console.log("all, ", materials)
+        // all notes matching filter
+        const notes = await Note.find(convertToLowerCase(req.body));
+        // console.log("all, ", notes)
 
-        // paid materials of the user
-        const paidMaterials = (await PaidMaterial.find({ user: userId }).populate('material')).map((paidMaterialsDoc) => paidMaterialsDoc.material)
-        // console.log("paid ", paidMaterials)
+        // paid notes of the user
+        const paidNotes = (await PaidNote.find({ user: userId }).populate('note')).map((paidNotesDoc) => paidNotesDoc.note)
+        // console.log("paid ", paidNotes)
 
-        // filtered unpaid materials
-        const unpaidMaterials = materials.filter(material => !paidMaterials.some(paidMaterial => paidMaterial.id === material.id));
-        // console.log("unpaid...",unpaidMaterials)
+        // filtered unpaid notes
+        const unpaidNotes = notes.filter(note => !paidNotes.some(paidNote => paidNote.id === note.id));
+        // console.log("unpaid...",unpaidNotes)
 
-        res.status(200).json(unpaidMaterials);
+        res.status(200).json(unpaidNotes);
     } catch (err) {
         console.log(err)
         res.status(500).json({ msg: "something went wrong", error: err })
     }
 }
 
+//------------- fetch paid notes --------------------
+const fetchPaidNotes = async (req, res) => {
+    try {
 
+        const userId = req.params.id;
+
+        // paid notes of the user
+        const paidNotes = (await PaidMaterial.find({ user: userId }).populate('material')).map((paidNotesDoc) => paidNotesDoc.material);
+
+        res.status(200).json(paidNotes);
+    } catch (error) {
+        console.error('Error fetching quizzes:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+//---------- fetch recent notes -------------------------
+const fetchRecentNotes = async (req, res)=>{
+    try {
+        // Query the database to find the most recent notes, sorted by creation date
+        const recentNotes = await Note.find().sort({ createdAt: -1 }).limit(2);
+    
+        // If there are no recent notes, send a 404 status with a message
+        if (recentNotes.length === 0) {
+          return res.status(404).json({ message: 'No recent notes found' });
+        }
+    
+        // If there are notes, send them in the response
+        res.json(recentNotes);
+      } catch (error) {
+        // If there's an error, send a 500 status with the error message
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+      }
+}
 
 
 // Helper function to check if a string is a valid MongoDB ObjectId
@@ -693,5 +728,5 @@ module.exports = {
     fetchPaidMaterials, fetchPaidQuizzes,
     sendOTP,
     addVideo, fetchVideos,
-    createNote, fetchNotes
+    createNote, fetchNotes, fetchPaidNotes, fetchRecentNotes
 }

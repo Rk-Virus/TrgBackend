@@ -41,7 +41,7 @@ const NoteSchema
     required:false,
     default:0,
   }
-});
+},{ timestamps: true });
 
 const Note = mongoose.model('Note', NoteSchema
 );

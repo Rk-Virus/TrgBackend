@@ -28,6 +28,9 @@ const {
     addVideo,
     fetchVideos,
     createNote,
+    fetchNotes,
+    fetchPaidNotes,
+    fetchRecentNotes,
 } = require("../controllers/commonControllers");
 
 const { createCareerForm, updateCareerForm, deleteCareerForm, getAllCareerForms,
@@ -101,6 +104,7 @@ router.get("/fetch-quiz/:id", fetchQuiz)
 // paid api
 router.get("/fetch-paid-materials/:id", fetchPaidMaterials)
 router.get("/fetch-paid-quizes/:id", fetchPaidQuizzes)
+router.get("/fetch-paid-notes/:id", fetchPaidNotes)
 
 //forgot password
 router.post("/send-otp", sendOTP)
@@ -128,9 +132,10 @@ router.delete("/internship-form/:id", verifyAdmin, deleteInternshipForm);
 router.get("/internship-form/:id", verifyAdmin, getInternshipForm);
 router.get("/internship-form/", verifyAdmin, getAllInternshipForms);
  
-// study material apis
+// notes apis
 router.post("/create-note/:key", createNote);
-// router.post("/fetch-notes/:id", fetchMaterials)
+router.post("/fetch-notes/:id", fetchNotes);
+router.get("/recent-notes", fetchRecentNotes);
 
 
 
