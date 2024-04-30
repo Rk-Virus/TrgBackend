@@ -23,7 +23,7 @@ const NoteSchema
   },
   subject: {
     type: String,
-    enum: ["hindi", "english", "maths", "science", "social studies", "sanskrit", "computer science", "environmental studies", "rhymes", "general knowledge", "french", "urdu", "punjabi", "drawing", "reasoning", "home science", "history", "geography", "political science", "economics", "physical education", "psychology", "yoga", "spanish", "sociology", "accountancy", "business studies", "entrepreneurship development", "german", "physics", "chemistry", "biology", "information technology", "vocational", "maths standards", "maths basics", "legal studies", "fine arts", "hindi elective", "hindi core", "engineering graphics", "health and wellness", "beauty parlour", "retail", "web designing", "automobile", "data analytics"]
+    enum: [" hindi", " english", " maths", " science", " social studies", " sanskrit", " computer science", " environmental studies", " rhymes", " general knowledge", " french", " urdu", " punjabi", " drawing", " reasoning", " home science", " history", " geography", " political science", " economics", " physical education", " psychology", " yoga", " spanish", " sociology", " accountancy", " business studies", " entrepreneurship development", " german", " physics", " chemistry", " biology", " information technology", "vocational", "maths standards", "maths basics", "legal studies", "fine arts", "hindi elective", "hindi core", "engineering graphics", "health and wellness", "beauty parlour", "retail", "web designing", "automobile", "data analytics"]
   },
   pdfUrl: {
     type: String,

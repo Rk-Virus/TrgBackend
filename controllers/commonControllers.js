@@ -16,6 +16,7 @@ const PaidQuiz = require('../models/PaidQuiz')
 const Video = require('../models/Video')
 const Note = require('../models/Note')
 const PaidNote = require('../models/PaidNote')
+const NoteBookmark = require('../models/NoteBookmark')
 
 //security key
 const secret_key = process.env.TRG_SECRET
@@ -333,8 +334,9 @@ const fetchBookmarks = async (req, res) => {
         // Find bookmarks for the given userId and populate the 'material' field
         const materialBookmarks = await MaterialBookmark.find({ user: userId }).populate('material');
         const quizBookmarks = await QuizBookmark.find({ user: userId }).populate('quiz');
+        const noteBookmarks = await NoteBookmark.find({ user: userId }).populate('note');
 
-        res.status(200).json({ materialBookmarks, quizBookmarks });
+        res.status(200).json({ materialBookmarks, quizBookmarks, noteBookmarks });
     } catch (error) {
         console.error('Error fetching bookmarks:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -349,9 +351,10 @@ const checkIfBookmarked = async (req, res) => {
         const userExists = await User.exists({ _id: userId });
         const materialExists = await StudyMaterial.exists({ _id: materialId });
         const quizExists = await Quiz.exists({ _id: materialId });
+        const noteExists = await Note.exists({ _id: materialId });
 
-        if (!userExists || !(quizExists || materialExists)) {
-            return res.status(404).json({ error: 'User or material not found.' });
+        if (!userExists || !(quizExists || materialExists || noteExists)) {
+            return res.status(404).json({ error: 'User or material/quiz/notes not found.' });
         }
 
         if (materialExists) {
@@ -368,6 +371,14 @@ const checkIfBookmarked = async (req, res) => {
                 quiz: materialId,
             }
             bookmarkId = await QuizBookmark.exists(bookmarkObj)
+        }
+
+        if (noteExists) {
+            const bookmarkObj = {
+                user: userId,
+                note: materialId,
+            }
+            bookmarkId = await NoteBookmark.exists(bookmarkObj)
         }
 
         // delete if bookmark exists
