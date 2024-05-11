@@ -702,7 +702,7 @@ const fetchPaidNotes = async (req, res) => {
 const fetchRecentNotes = async (req, res)=>{
     try {
         // Query the database to find the most recent notes, sorted by creation date
-        const recentNotes = await Note.find().sort({ createdAt: -1 }).limit(2);
+        const recentNotes = await Note.find().sort({ createdAt: -1 }).limit(15);
     
         // If there are no recent notes, send a 404 status with a message
         if (recentNotes.length === 0) {
