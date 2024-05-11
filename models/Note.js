@@ -36,7 +36,12 @@ const NoteSchema
     type:Boolean,
     default:false,
   },
-  price:{
+  originalPrice:{
+    type:Number,
+    required:false,
+    default:0,
+  },
+  discountPrice:{
     type:Number,
     required:false,
     default:0,

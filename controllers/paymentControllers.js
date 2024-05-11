@@ -1,5 +1,7 @@
 // This example sets up an endpoint using the Express framework.
-const PaidMaterial = require('../models/PaidMaterial')
+const Note = require('../models/Note');
+const PaidMaterial = require('../models/PaidMaterial');
+const PaidNote = require('../models/PaidNote');
 const PaidQuiz = require('../models/PaidQuiz');
 const Quiz = require('../models/Quiz');
 const StudyMaterial = require('../models/StudyMaterial');
@@ -11,8 +13,9 @@ const addPaidMaterial = async (userId, materialId) => {
   const userExists = await User.exists({ _id: userId });
   const materialExists = await StudyMaterial.exists({ _id: materialId });
   const quizExists = await Quiz.exists({ _id: materialId });
+  const noteExists = await Note.exists({ _id: materialId });
 
-  if (!userExists || !(quizExists || materialExists)) {
+  if (!userExists || !(quizExists || materialExists || noteExists)) {
     return res.status(404).json({ error: 'User or material not found.' });
   }
 
@@ -42,10 +45,24 @@ const addPaidMaterial = async (userId, materialId) => {
     // Create a new bookmark instance
     newPaidMaterial = new PaidQuiz(paidMaterialObj);
   }
+  if (noteExists) {
+    const paidMaterialObj = {
+      user: userId,
+      material: materialId,
+    }
+    const materialBookmarkId = await PaidNote.exists(paidMaterialObj)
+    // delete if bookmark exists
+    if (materialBookmarkId) {
+      return res.status(200).json({ message: 'You have already purchased this study material!' });
+    }
+    // Create a new PaidNote instance
+    newPaidMaterial = new PaidNote(paidMaterialObj);
+  }
 
   // Save the bookmark to the database
   await newPaidMaterial.save();
 }
+
 
 // order api
 const createOrder = async (req, res) => {
