@@ -281,8 +281,9 @@ const addBookmark = async (req, res) => {
         const userExists = await User.exists({ _id: userId });
         const materialExists = await StudyMaterial.exists({ _id: materialId });
         const quizExists = await Quiz.exists({ _id: materialId });
+        const noteExists = await Note.exists({ _id: materialId });
 
-        if (!userExists || !(quizExists || materialExists)) {
+        if (!userExists || !(quizExists || materialExists || noteExists)) {
             return res.status(404).json({ error: 'User or material not found.' });
         }
 
@@ -314,6 +315,20 @@ const addBookmark = async (req, res) => {
             }
             // Create a new bookmark instance
             newBookmark = new QuizBookmark(bookmarkObj);
+        }
+        if (noteExists) {
+            const bookmarkObj = {
+                user: userId,
+                material: materialId,
+            }
+            const noteBookmarkId = await NoteBookmark.exists(bookmarkObj)
+            // delete if bookmark exists
+            if (noteBookmarkId) {
+                await NoteBookmark.findByIdAndRemove(noteBookmarkId);
+                return res.status(200).json({ message: 'Bookmark removed successfully.' });
+            }
+            // Create a new bookmark instance
+            newBookmark = new NoteBookmark(bookmarkObj);
         }
 
         // Save the bookmark to the database
